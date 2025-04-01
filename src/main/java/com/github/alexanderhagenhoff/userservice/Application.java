@@ -1,11 +1,11 @@
-package com.github.alexanderhagenhoff;
+package com.github.alexanderhagenhoff.userservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan("com.github.alexanderhagenhoff")
+@ComponentScan("com.github.alexanderhagenhoff.userservice")
 public class Application {
 
     public static void main(String[] args) {
