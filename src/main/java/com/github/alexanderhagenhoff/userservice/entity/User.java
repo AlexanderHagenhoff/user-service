@@ -1,4 +1,4 @@
-package com.github.alexanderhagenhoff.entity;
+package com.github.alexanderhagenhoff.userservice.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

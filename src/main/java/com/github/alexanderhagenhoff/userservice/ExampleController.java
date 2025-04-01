@@ -1,4 +1,4 @@
-package com.github.alexanderhagenhoff;
+package com.github.alexanderhagenhoff.userservice;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
