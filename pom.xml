@@ -9,7 +9,7 @@
     <packaging>jar</packaging>
 
     <properties>
-        <java.version>24</java.version>
+        <java.version>23</java.version>
         <junit.version>5.12.0</junit.version>
         <mockito.version>5.16.0</mockito.version>
         <postgresql.version>42.7.5</postgresql.version>
@@ -17,11 +17,12 @@
         <flyway.version>11.5.0</flyway.version>
         <jackson.version>2.18.3</jackson.version>
         <surefire.version>3.5.3</surefire.version>
+        <testcontainers.version>1.20.6</testcontainers.version>
         <failsafe.version>3.5.3</failsafe.version>
         <jacoco.version>0.8.12</jacoco.version>
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
-        <maven-compiler-plugin.source>24</maven-compiler-plugin.source>
-        <maven-compiler-plugin.target>24</maven-compiler-plugin.target>
+        <maven-compiler-plugin.source>23</maven-compiler-plugin.source>
+        <maven-compiler-plugin.target>23</maven-compiler-plugin.target>
     </properties>
 
     <dependencies>
@@ -29,6 +30,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring-boot.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -39,6 +46,7 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>${postgresql.version}</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
@@ -91,6 +99,24 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <version>${spring-boot.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -188,6 +214,15 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>integrationtest</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>integrationtest</spring.profiles.active>
+            </properties>
+        </profile>
         <profile>
             <id>coverage</id>
             <build>
