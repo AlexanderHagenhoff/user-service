@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -17,13 +16,13 @@ import static com.github.alexanderhagenhoff.userservice.TestProfile.INTEGRATION_
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@Testcontainers
 @ActiveProfiles(INTEGRATION_TEST)
 @Sql(scripts = "classpath:db/delete_users_content.sql")
-class UserRepositoryTest {
+class UserRepositoryIT {
 
     private static final String EXPECTED_EMAIL = "expected_email_for_test";
     private static final String EXPECTED_FIRST_NAME = "expected_first_name";
@@ -40,16 +39,22 @@ class UserRepositoryTest {
     @Test
     void shouldSaveAndRetrieveUser() {
         User newUser = new User(EXPECTED_FIRST_NAME, EXPECTED_LAST_NAME, EXPECTED_EMAIL);
+        assertNull(newUser.getId(), "Not saved user should not have a UUID");
 
         User savedUser = userRepository.save(newUser);
-        Optional<User> foundUser = userRepository.findById(savedUser.getId());
+        assertNotNull(savedUser.getId(), "Saved user should have a UUID");
 
-        assertTrue(foundUser.isPresent(), "User should be found");
-        assertEquals(EXPECTED_FIRST_NAME, foundUser.get().getFirstName());
-        assertEquals(EXPECTED_LAST_NAME, foundUser.get().getLastName());
-        assertEquals(EXPECTED_EMAIL, foundUser.get().getEmail());
-        assertNotNull(foundUser.get().getCreatedAt(), "Created date should be set");
-        assertNotNull(foundUser.get().getLastModifiedAt(), "Modified date should be set");
+        Optional<User> optionalFoundUser = userRepository.findById(savedUser.getId());
+
+        assertTrue(optionalFoundUser.isPresent(), "User should be found");
+
+        User foundUser = optionalFoundUser.get();
+        assertEquals(EXPECTED_FIRST_NAME, foundUser.getFirstName());
+        assertEquals(EXPECTED_LAST_NAME, foundUser.getLastName());
+        assertEquals(EXPECTED_EMAIL, foundUser.getEmail());
+        assertNotNull(foundUser.getCreatedAt(), "Created date should be set");
+        assertNotNull(foundUser.getLastModifiedAt(), "Modified date should be set");
+        assertNotNull(foundUser.getId(), "Loaded user should have a UUID");
     }
 
     @Test

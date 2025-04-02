@@ -24,6 +24,7 @@
         <maven-compiler-plugin.source>23</maven-compiler-plugin.source>
         <maven-compiler-plugin.target>23</maven-compiler-plugin.target>
         <slf4j-api.version>2.0.17</slf4j-api.version>
+        <mockito-core.version>5.16.1</mockito-core.version>
     </properties>
 
     <dependencies>
@@ -63,6 +64,11 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-api.version}</version>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -115,9 +121,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j-api.version}</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
