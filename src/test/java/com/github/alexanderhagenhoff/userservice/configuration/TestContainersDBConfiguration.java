@@ -14,14 +14,20 @@ import javax.sql.DataSource;
 @Profile("integrationtest")
 public class TestContainersDBConfiguration {
 
+    private static final String POSTGRES_VERSION = "postgres:16.3";
+    private static final String DATABASE_NAME = "user-service";
+    private static final String DATABASE_USER_NAME = "integrationtestuser";
+    private static final String DATABASE_PASSWORD = "integrationtestpass";
+    private static final String DATABASE_TYPE = "postgres";
+
     @Bean
     public PostgreSQLContainer<?> postgreSQLContainer() {
         PostgreSQLContainer<?> container = new PostgreSQLContainer<>(
-                DockerImageName.parse("postgres:16.3")
-                        .asCompatibleSubstituteFor("postgres"))
-                .withDatabaseName("user-service")
-                .withUsername("integrationtestuser")
-                .withPassword("integrationtestpass");
+                DockerImageName.parse(POSTGRES_VERSION)
+                        .asCompatibleSubstituteFor(DATABASE_TYPE))
+                .withDatabaseName(DATABASE_NAME)
+                .withUsername(DATABASE_USER_NAME)
+                .withPassword(DATABASE_PASSWORD);
 
         container.start();
         return container;
