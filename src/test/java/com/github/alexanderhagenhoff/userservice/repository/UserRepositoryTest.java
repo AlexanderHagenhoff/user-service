@@ -13,6 +13,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
+import static com.github.alexanderhagenhoff.userservice.TestProfile.INTEGRATION_TEST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -20,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Testcontainers
-@ActiveProfiles("integrationtest")
+@ActiveProfiles(INTEGRATION_TEST)
 @Sql(scripts = "classpath:db/delete_users_content.sql")
 class UserRepositoryTest {
 
