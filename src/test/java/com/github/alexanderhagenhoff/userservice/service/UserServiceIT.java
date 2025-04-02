@@ -10,12 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.UUID;
 
 import static com.github.alexanderhagenhoff.userservice.TestProfile.INTEGRATION_TEST;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ActiveProfiles(INTEGRATION_TEST)
@@ -46,7 +48,7 @@ class UserServiceIT {
     }
 
     @Test
-    void shouldRetrieveUserById() throws Exception{
+    void shouldRetrieveUserById() throws Exception {
         User user = userService.getUser(userId);
         assertNotNull(user);
         assertEquals(TEST_EMAIL, user.getEmail());
