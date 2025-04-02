@@ -11,6 +11,8 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -39,13 +41,12 @@ public class User {
 
     @CreatedDate
     @Column(updatable = false)
-    private ZonedDateTime createdAt;
+    private Instant createdAt;
 
     @LastModifiedDate
-    private ZonedDateTime lastModifiedAt;
+    private Instant lastModifiedAt;
 
-    public User() {
-    }
+    public User() {}
 
     public User(String firstName, String lastName, String email) {
         this.firstName = firstName;
@@ -86,18 +87,18 @@ public class User {
     }
 
     public ZonedDateTime getCreatedAt() {
-        return createdAt;
+        return createdAt.atZone(ZoneId.systemDefault());
     }
 
     public void setCreatedAt(ZonedDateTime createdAt) {
-        this.createdAt = createdAt;
+        this.createdAt = createdAt.toInstant();
     }
 
     public ZonedDateTime getLastModifiedAt() {
-        return lastModifiedAt;
+        return lastModifiedAt.atZone(ZoneId.systemDefault());
     }
 
     public void setLastModifiedAt(ZonedDateTime lastModifiedAt) {
-        this.lastModifiedAt = lastModifiedAt;
+        this.lastModifiedAt = lastModifiedAt.toInstant();
     }
 }
