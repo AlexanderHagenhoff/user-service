@@ -18,15 +18,14 @@ import static com.github.alexanderhagenhoff.userservice.TestProfile.INTEGRATION_
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Testcontainers
 @ActiveProfiles(INTEGRATION_TEST)
 @Sql(scripts = "classpath:db/delete_users_content.sql")
 class UserServiceIT {
 
-    private static final String TEST_EMAIL = "test@example.com";
+    private static final String TEST_EMAIL = "test_email";
     private static final String TEST_FIRST_NAME = "Test";
     private static final String TEST_LAST_NAME = "User";
-    private static final String NEW_EMAIL = "new@example.com";
+    private static final String NEW_EMAIL = "new";
     private static final String NEW_FIRST_NAME = "New";
     private static final String NEW_LAST_NAME = "User";
 

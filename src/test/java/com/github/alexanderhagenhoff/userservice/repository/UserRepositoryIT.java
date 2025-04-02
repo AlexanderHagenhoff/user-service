@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@Testcontainers
 @ActiveProfiles(INTEGRATION_TEST)
 @Sql(scripts = "classpath:db/delete_users_content.sql")
 class UserRepositoryIT {
