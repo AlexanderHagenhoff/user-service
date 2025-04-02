@@ -1,7 +1,6 @@
 package com.github.alexanderhagenhoff.userservice.repository;
 
 import com.github.alexanderhagenhoff.userservice.entity.User;
-import org.hibernate.annotations.processing.SQL;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

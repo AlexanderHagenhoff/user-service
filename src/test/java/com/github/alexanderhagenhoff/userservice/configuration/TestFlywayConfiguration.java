@@ -9,10 +9,10 @@ import javax.sql.DataSource;
 
 @TestConfiguration
 @Profile("integrationtest")
-public class TestFlywayConfig {
+public class TestFlywayConfiguration {
 
     @Bean
-    public Flyway flyway(DataSource dataSource) {
+    public Flyway getFlyway(DataSource dataSource) {
         return Flyway.configure()
                 .dataSource(dataSource)
                 .locations("classpath:db/migration")
