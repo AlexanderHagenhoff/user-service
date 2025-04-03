@@ -14,6 +14,7 @@
         <mockito.version>5.16.0</mockito.version>
         <postgresql.version>42.7.5</postgresql.version>
         <spring-boot.version>3.4.3</spring-boot.version>
+        <springdoc-openapi-starter-webmvc-ui.version>2.8.6</springdoc-openapi-starter-webmvc-ui.version>
         <flyway.version>11.5.0</flyway.version>
         <jackson.version>2.18.3</jackson.version>
         <surefire.version>3.5.3</surefire.version>
@@ -37,6 +38,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>${springdoc-openapi-starter-webmvc-ui.version}</version>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
