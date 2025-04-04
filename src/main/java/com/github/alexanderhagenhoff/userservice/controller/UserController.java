@@ -1,9 +1,10 @@
 package com.github.alexanderhagenhoff.userservice.controller;
 
-import com.github.alexanderhagenhoff.userservice.entity.User;
 import com.github.alexanderhagenhoff.userservice.exception.EmailAlreadyInUseException;
 import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
 import com.github.alexanderhagenhoff.userservice.service.UserService;
+import com.github.alexanderhagenhoff.userservice.service.dto.CreateUserDto;
+import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,6 +29,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RequestMapping("/users")
 @Tag(name = "User Management", description = "Endpoints for managing users")
 public class UserController {
+
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -40,11 +42,11 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(
+    public ResponseEntity<UserDto> getUser(
             @Parameter(description = "UUID of the user to retrieve") @PathVariable("id") UUID id) {
         try {
-            User foundUser = userService.getUser(id);
-            return ResponseEntity.ok(foundUser);
+            UserDto userDto = userService.getUser(id);
+            return ResponseEntity.ok(userDto);
         } catch (NotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -56,14 +58,14 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/email")
-    public ResponseEntity<User> getUserByEmail(
+    public ResponseEntity<UserDto> getUserByEmail(
             @Parameter(description = "Email address of the user to retrieve") @RequestParam(name = "email") String email) {
-        User user = userService.getUserByEmail(email);
-        if (user == null) {
+        UserDto userDto = userService.getUserByEmail(email);
+        if (userDto == null) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(userDto);
     }
 
     @Operation(summary = "Create a new user", description = "Adds a new user to the system.")
@@ -72,11 +74,11 @@ public class UserController {
             @ApiResponse(responseCode = "409", description = "Email already in use")
     })
     @PostMapping
-    public ResponseEntity<User> createUser(
-            @Parameter(description = "User object containing first name, last name, and email") @RequestBody User user) {
+    public ResponseEntity<UserDto> createUser(
+            @Parameter(description = "User object containing first name, last name, and email") @RequestBody CreateUserDto createUserDto) {
         try {
-            User createdUser = userService.createUser(user);
-            return ResponseEntity.status(CREATED).body(createdUser);
+            UserDto createdUserDto = userService.createUser(createUserDto);
+            return ResponseEntity.status(CREATED).body(createdUserDto);
         } catch (EmailAlreadyInUseException e) {
             return ResponseEntity.status(CONFLICT).build();
         }

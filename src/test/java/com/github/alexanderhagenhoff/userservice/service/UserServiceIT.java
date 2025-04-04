@@ -1,9 +1,10 @@
 package com.github.alexanderhagenhoff.userservice.service;
 
-import com.github.alexanderhagenhoff.userservice.entity.User;
 import com.github.alexanderhagenhoff.userservice.exception.EmailAlreadyInUseException;
 import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
 import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
+import com.github.alexanderhagenhoff.userservice.service.dto.CreateUserDto;
+import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Sql(scripts = "classpath:db/delete_users_content.sql")
 class UserServiceIT {
 
-    private static final String TEST_EMAIL = "test_email";
+    private static final String TEST_EMAIL = "test_email@example.com";
     private static final String TEST_FIRST_NAME = "Test";
     private static final String TEST_LAST_NAME = "User";
-    private static final String NEW_EMAIL = "new";
+    private static final String NEW_EMAIL = "new_email@example.com";
     private static final String NEW_FIRST_NAME = "New";
     private static final String NEW_LAST_NAME = "User";
 
@@ -42,46 +43,54 @@ class UserServiceIT {
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
-        User user = new User(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
-        User savedUser = userService.createUser(user);
-        userId = savedUser.getId();
+        CreateUserDto createUserDto = new CreateUserDto(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
+        UserDto createdUserDto = userService.createUser(createUserDto);
+        userId = createdUserDto.id();
     }
 
     @Test
     void shouldRetrieveUserById() throws Exception {
-        User user = userService.getUser(userId);
-        assertNotNull(user);
-        assertEquals(TEST_EMAIL, user.getEmail());
+        UserDto userDto = userService.getUser(userId);
+        assertNotNull(userDto);
+        assertEquals(TEST_EMAIL, userDto.email());
     }
 
     @Test
     void shouldRetrieveUserByEmail() {
-        User user = userService.getUserByEmail(TEST_EMAIL);
-        assertNotNull(user);
-        assertEquals(userId, user.getId());
+        UserDto userDto = userService.getUserByEmail(TEST_EMAIL);
+        assertNotNull(userDto);
+        assertEquals(userId, userDto.id());
     }
 
     @Test
-    void shouldCreateUserSuccessfully() {
-        User newUser = new User(NEW_FIRST_NAME, NEW_LAST_NAME, NEW_EMAIL);
-        User savedUser = userService.createUser(newUser);
+    void shouldCreateUserSuccessfully() throws Exception {
+        CreateUserDto createUserDto = new CreateUserDto(NEW_FIRST_NAME, NEW_LAST_NAME, NEW_EMAIL);
+        UserDto createdUserDto = userService.createUser(createUserDto);
 
-        assertNotNull(savedUser.getId());
-        assertEquals(NEW_FIRST_NAME, savedUser.getFirstName());
-        assertEquals(NEW_LAST_NAME, savedUser.getLastName());
-        assertEquals(NEW_EMAIL, savedUser.getEmail());
+        assertNotNull(createdUserDto.id());
+        assertEquals(NEW_FIRST_NAME, createdUserDto.firstName());
+        assertEquals(NEW_LAST_NAME, createdUserDto.lastName());
+        assertEquals(NEW_EMAIL, createdUserDto.email());
+
+        UserDto userFromDb = userService.getUser(createdUserDto.id());
+        assertNotNull(userFromDb);
+        assertEquals(NEW_FIRST_NAME, userFromDb.firstName());
+        assertEquals(NEW_LAST_NAME, userFromDb.lastName());
+        assertEquals(NEW_EMAIL, userFromDb.email());
     }
 
     @Test
     void shouldThrowExceptionWhenEmailExists() {
-        User duplicateUser = new User(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
-        assertThrows(EmailAlreadyInUseException.class, () -> userService.createUser(duplicateUser));
+        CreateUserDto duplicateUserDto = new CreateUserDto(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
+        assertThrows(EmailAlreadyInUseException.class, () -> userService.createUser(duplicateUserDto));
     }
 
     @Test
     void shouldDeleteUser() {
         userService.deleteUser(userId);
         assertFalse(userRepository.existsById(userId));
+
+        assertThrows(NotFoundException.class, () -> userService.getUser(userId));
     }
 
     @Test

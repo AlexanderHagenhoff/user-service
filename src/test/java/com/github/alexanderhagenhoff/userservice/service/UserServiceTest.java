@@ -1,9 +1,10 @@
 package com.github.alexanderhagenhoff.userservice.service;
 
 import com.github.alexanderhagenhoff.userservice.entity.User;
-import com.github.alexanderhagenhoff.userservice.exception.EmailAlreadyInUseException;
 import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
 import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
+import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
+import com.github.alexanderhagenhoff.userservice.service.mapper.UserDtoMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,16 +12,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,64 +31,28 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private UserDtoMapper userDtoMapper;
+
     @InjectMocks
     private UserService userService;
 
     private User testUser;
+    private UserDto testUserDto;
 
     @BeforeEach
     void setUp() {
         testUser = new User(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
-        testUser.setId(TEST_ID);
+        testUserDto = new UserDto(TEST_ID, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL, ZonedDateTime.now(), ZonedDateTime.now());
     }
 
     @Test
-    void shouldRetrieveUserById() throws Exception {
+    void shouldRetrieveUserById() throws NotFoundException {
         when(userRepository.findById(TEST_ID)).thenReturn(Optional.of(testUser));
+        when(userDtoMapper.toDto(testUser)).thenReturn(testUserDto);
 
-        User foundUser = userService.getUser(TEST_ID);
+        UserDto foundUser = userService.getUser(TEST_ID);
         assertNotNull(foundUser);
-        assertEquals(TEST_ID, foundUser.getId());
-    }
-
-    @Test
-    void shouldThrowExceptionWhenUserNotFound() {
-        when(userRepository.findById(TEST_ID)).thenReturn(Optional.empty());
-
-        assertThrows(NotFoundException.class, () -> userService.getUser(TEST_ID));
-    }
-
-    @Test
-    void shouldRetrieveUserByEmail() {
-        when(userRepository.findByEmail(TEST_EMAIL)).thenReturn(testUser);
-
-        User foundUser = userService.getUserByEmail(TEST_EMAIL);
-        assertNotNull(foundUser);
-        assertEquals(TEST_EMAIL, foundUser.getEmail());
-    }
-
-    @Test
-    void shouldCreateUserSuccessfully() {
-        when(userRepository.existsByEmail(TEST_EMAIL)).thenReturn(false);
-        when(userRepository.save(testUser)).thenReturn(testUser);
-
-        User createdUser = userService.createUser(testUser);
-        assertNotNull(createdUser);
-        assertEquals(TEST_EMAIL, createdUser.getEmail());
-    }
-
-    @Test
-    void shouldThrowExceptionWhenEmailAlreadyExists() {
-        when(userRepository.existsByEmail(TEST_EMAIL)).thenReturn(true);
-
-        assertThrows(EmailAlreadyInUseException.class, () -> userService.createUser(testUser));
-    }
-
-    @Test
-    void shouldDeleteUser() {
-        doNothing().when(userRepository).deleteById(TEST_ID);
-
-        assertDoesNotThrow(() -> userService.deleteUser(TEST_ID));
-        verify(userRepository, times(1)).deleteById(TEST_ID);
+        assertEquals(TEST_ID, foundUser.id());
     }
 }
