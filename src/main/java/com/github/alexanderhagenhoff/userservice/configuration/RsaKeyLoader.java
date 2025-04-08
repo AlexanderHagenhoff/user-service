@@ -11,6 +11,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 @Component
 public class RsaKeyLoader {
 
@@ -37,7 +39,7 @@ public class RsaKeyLoader {
     }
 
     private byte[] extractKeyBytes(Path path, String begin, String end) throws Exception {
-        String content = Files.readString(path)
+        String content = Files.readString(path, UTF_8)
                 .replace(begin, "")
                 .replace(end, "")
                 .replaceAll("\\s", "");
