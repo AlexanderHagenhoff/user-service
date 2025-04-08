@@ -33,8 +33,8 @@ class RsaPublicKeyLoaderTest {
         Path pemFile = tempDirectory.resolve("public.pem");
         Files.writeString(pemFile, pem);
 
-        RsaPublicKeyLoader loader = new RsaPublicKeyLoader();
-        RSAPublicKey key = loader.load(pemFile);
+        RsaKeyLoader loader = new RsaKeyLoader();
+        RSAPublicKey key = loader.loadPublicKey(pemFile);
 
         assertThat(key).isNotNull();
         assertThat(key.getAlgorithm()).isEqualTo("RSA");
