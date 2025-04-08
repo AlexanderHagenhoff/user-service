@@ -18,6 +18,9 @@ public class TokenController {
 
     public static final String PUBLIC_TOKEN_ENDPOINT = "/token";
 
+    private static final String PARAMETER_CLIENT_ID = "clientId";
+    private static final String PARAMETER_CLIENT_SECRET = "clientSecret";
+
     private final JwtService jwtService;
 
     @Value("${inter-service.jwt.valid_for_seconds:3600}")
@@ -35,9 +38,8 @@ public class TokenController {
 
     @GetMapping
     public ResponseEntity<Map<String, Object>> issueToken(
-            @RequestParam(name = "clientId") String clientId,
-            @RequestParam(name = "clientSecret") String clientSecret,
-            @RequestParam(name = "grantType", required = false) String grantType
+            @RequestParam(name = PARAMETER_CLIENT_ID) String clientId,
+            @RequestParam(name = PARAMETER_CLIENT_SECRET) String clientSecret
     ) {
         if (!isAuthorized(clientId, clientSecret)) {
             return ResponseEntity.status(UNAUTHORIZED).build();
