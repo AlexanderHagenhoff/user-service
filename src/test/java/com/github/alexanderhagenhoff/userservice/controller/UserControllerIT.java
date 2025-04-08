@@ -1,10 +1,12 @@
 package com.github.alexanderhagenhoff.userservice.controller;
 
+import com.github.alexanderhagenhoff.userservice.TokenUtils;
 import com.github.alexanderhagenhoff.userservice.entity.User;
 import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -48,16 +50,27 @@ public class UserControllerIT {
             }
             """;
 
+    @Value("${inter-service.allowed_service.client_id}")
+    private String testClientId;
+
+    @Value("${inter-service.allowed_service.client_secret}")
+    private String testClientSecret;
+
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private TokenUtils tokenUtils;
+
     private UUID userId;
 
+    private String jwtToken;
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         userRepository.deleteAll();
         User user = new User();
         user.setFirstName(TEST_FIRST_NAME);
@@ -65,32 +78,40 @@ public class UserControllerIT {
         user.setEmail(TEST_EMAIL);
         user = userRepository.save(user);
         userId = user.getId();
+
+        jwtToken = tokenUtils.getJwtToken(testClientId, testClientSecret);
     }
 
     @Test
     void getUserByIdShouldReturnUserWhenUserExists() throws Exception {
         String expectedJson = EXPECTED_JSON_TEMPLATE.formatted(userId, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
-        mockMvc.perform(get(USERS_BY_ID, userId))
+        mockMvc.perform(
+                        get(USERS_BY_ID, userId)
+                                .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedJson));
     }
 
     @Test
     void getUserByIdShouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
-        mockMvc.perform(get(USERS_BY_ID, UUID.randomUUID()))
+        mockMvc.perform(
+                        get(USERS_BY_ID, UUID.randomUUID())
+                                .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void getUserByEmailShouldReturnUserWhenUserExists() throws Exception {
-        mockMvc.perform(get(USERS_BY_EMAIL, TEST_EMAIL))
+        mockMvc.perform(get(USERS_BY_EMAIL, TEST_EMAIL)
+                        .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isOk())
                 .andExpect(content().json(EXPECTED_JSON_TEMPLATE.formatted(userId, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL)));
     }
 
     @Test
     void getUserByEmailShouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
-        mockMvc.perform(get(USERS_BY_EMAIL, "notfound@example.com"))
+        mockMvc.perform(get(USERS_BY_EMAIL, "notfound@example.com")
+                        .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isNotFound());
     }
 
@@ -100,6 +121,7 @@ public class UserControllerIT {
         String newUserJson = CREATE_JSON_TEMPLATE.formatted("New", "User", newUserEmail);
 
         mockMvc.perform(post(USERS_ENDPOINT)
+                        .header("Authorization", "Bearer " + jwtToken)
                         .contentType(APPLICATION_JSON)
                         .content(newUserJson))
                 .andExpect(status().isCreated());
@@ -110,6 +132,7 @@ public class UserControllerIT {
         String duplicateUserJson = EXPECTED_JSON_TEMPLATE.formatted(UUID.randomUUID(), TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
 
         mockMvc.perform(post(USERS_ENDPOINT)
+                        .header("Authorization", "Bearer " + jwtToken)
                         .contentType(APPLICATION_JSON)
                         .content(duplicateUserJson))
                 .andExpect(status().isConflict());
@@ -117,13 +140,15 @@ public class UserControllerIT {
 
     @Test
     void deleteUserShouldReturnNoContentWhenUserExists() throws Exception {
-        mockMvc.perform(delete(USERS_BY_ID, userId))
+        mockMvc.perform(delete(USERS_BY_ID, userId)
+                        .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void deleteUserShouldReturnNoContentWhenUserDoesNotExist() throws Exception {
-        mockMvc.perform(delete(USERS_BY_ID, UUID.randomUUID()))
+        mockMvc.perform(delete(USERS_BY_ID, UUID.randomUUID())
+                        .header("Authorization", "Bearer " + jwtToken))
                 .andExpect(status().isNoContent());
     }
 }
