@@ -6,6 +6,7 @@ import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -49,6 +50,12 @@ public class UserControllerIT {
             }
             """;
 
+    @Value("${inter-service.allowed_service.client_id}")
+    private String testClientId;
+
+    @Value("${inter-service.allowed_service.client_secret}")
+    private String testClientSecret;
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -72,8 +79,7 @@ public class UserControllerIT {
         user = userRepository.save(user);
         userId = user.getId();
 
-        jwtToken = tokenUtils.getJwtToken("dummy_client_id_for_test", "dummy_client_secret_for_test");
-        userRepository.deleteAll();
+        jwtToken = tokenUtils.getJwtToken(testClientId, testClientSecret);
     }
 
     @Test

@@ -11,7 +11,9 @@ import java.security.interfaces.RSAPublicKey;
 public class JwtDecoderConfiguration {
 
     @Bean
-    public JwtDecoder jwtDecoder(RSAPublicKey publicKey) throws Exception {
-        return NimbusJwtDecoder.withPublicKey(publicKey).build();
+    public JwtDecoder jwtDecoder(RSAPublicKey publicKey) {
+        return NimbusJwtDecoder
+                .withPublicKey(publicKey)
+                .build();
     }
 }

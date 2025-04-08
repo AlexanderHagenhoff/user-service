@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
-import static io.jsonwebtoken.SignatureAlgorithm.RS512;
+import static io.jsonwebtoken.Jwts.SIG.RS256;
 
 @Service
 public class JwtService {
@@ -33,7 +33,7 @@ public class JwtService {
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(oneHourInFuture))
                 .id(UUID.randomUUID().toString())
-                .signWith(privateKey, RS512)
+                .signWith(privateKey, RS256)
                 .compact();
     }
 }
