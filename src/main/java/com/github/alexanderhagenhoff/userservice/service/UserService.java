@@ -22,7 +22,7 @@ public class UserService {
         this.userDtoMapper = userDtoMapper;
     }
 
-    public UserDto getUser(UUID uuid) throws NotFoundException {
+    public UserDto getUser(UUID uuid) throws NotFoundException{
         return userRepository.findById(uuid)
                 .map(userDtoMapper::toDto)
                 .orElseThrow(() -> new NotFoundException(uuid));

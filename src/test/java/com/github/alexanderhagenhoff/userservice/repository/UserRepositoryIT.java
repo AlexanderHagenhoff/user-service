@@ -61,7 +61,6 @@ class UserRepositoryIT {
     void shouldCheckEmailExistence() {
         User user = createTestUser();
 
-        assertNotNull(user);
         assertTrue(userRepository.existsByEmail(EXPECTED_EMAIL),
                 "Email should exist");
         assertFalse(userRepository.existsByEmail("unknown@example.com"),

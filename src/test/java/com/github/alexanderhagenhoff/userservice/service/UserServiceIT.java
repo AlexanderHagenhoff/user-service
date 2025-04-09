@@ -8,7 +8,6 @@ import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -23,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @ActiveProfiles(INTEGRATION_TEST)
-@AutoConfigureMockMvc
 @Sql(scripts = "classpath:db/delete_users_content.sql")
 class UserServiceIT {
 
@@ -44,6 +42,7 @@ class UserServiceIT {
 
     @BeforeEach
     void setUp() {
+        userRepository.deleteAll();
         CreateUserDto createUserDto = new CreateUserDto(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
         UserDto createdUserDto = userService.createUser(createUserDto);
         userId = createdUserDto.id();
@@ -100,4 +99,3 @@ class UserServiceIT {
         assertThrows(NotFoundException.class, () -> userService.getUser(nonExistentId));
     }
 }
-
