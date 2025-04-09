@@ -10,7 +10,7 @@ target/
 *.iws
 *.iml
 *.ipr
-secret
+/src/main/resources/secret/
 
 ### Eclipse ###
 .apt_generated
