@@ -1,5 +1,6 @@
 package com.github.alexanderhagenhoff.userservice.controller;
 
+import com.github.alexanderhagenhoff.userservice.configuration.oauth2.OAuth2TestHelper;
 import com.github.alexanderhagenhoff.userservice.entity.User;
 import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import java.util.UUID;
 
@@ -54,10 +56,15 @@ public class UserControllerIT {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private OAuth2TestHelper oauthHelper;
+
     private UUID userId;
 
+    private String accessToken;
+
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         userRepository.deleteAll();
         User user = new User();
         user.setFirstName(TEST_FIRST_NAME);
@@ -65,32 +72,34 @@ public class UserControllerIT {
         user.setEmail(TEST_EMAIL);
         user = userRepository.save(user);
         userId = user.getId();
+
+        accessToken = oauthHelper.getValidToken();
     }
 
     @Test
     void getUserByIdShouldReturnUserWhenUserExists() throws Exception {
         String expectedJson = EXPECTED_JSON_TEMPLATE.formatted(userId, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
-        mockMvc.perform(get(USERS_BY_ID, userId))
+        mockMvc.perform(withAuth(get(USERS_BY_ID, userId)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedJson));
     }
 
     @Test
     void getUserByIdShouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
-        mockMvc.perform(get(USERS_BY_ID, UUID.randomUUID()))
+        mockMvc.perform(withAuth(get(USERS_BY_ID, UUID.randomUUID())))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     void getUserByEmailShouldReturnUserWhenUserExists() throws Exception {
-        mockMvc.perform(get(USERS_BY_EMAIL, TEST_EMAIL))
+        mockMvc.perform(withAuth(get(USERS_BY_EMAIL, TEST_EMAIL)))
                 .andExpect(status().isOk())
                 .andExpect(content().json(EXPECTED_JSON_TEMPLATE.formatted(userId, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL)));
     }
 
     @Test
     void getUserByEmailShouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
-        mockMvc.perform(get(USERS_BY_EMAIL, "notfound@example.com"))
+        mockMvc.perform(withAuth(get(USERS_BY_EMAIL, "notfound@example.com")))
                 .andExpect(status().isNotFound());
     }
 
@@ -99,9 +108,9 @@ public class UserControllerIT {
         String newUserEmail = "new_email";
         String newUserJson = CREATE_JSON_TEMPLATE.formatted("New", "User", newUserEmail);
 
-        mockMvc.perform(post(USERS_ENDPOINT)
+        mockMvc.perform(withAuth(post(USERS_ENDPOINT)
                         .contentType(APPLICATION_JSON)
-                        .content(newUserJson))
+                        .content(newUserJson)))
                 .andExpect(status().isCreated());
     }
 
@@ -109,7 +118,7 @@ public class UserControllerIT {
     void createUser_ShouldReturnConflictWhenEmailAlreadyExists() throws Exception {
         String duplicateUserJson = EXPECTED_JSON_TEMPLATE.formatted(UUID.randomUUID(), TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
 
-        mockMvc.perform(post(USERS_ENDPOINT)
+        mockMvc.perform(withAuth(post(USERS_ENDPOINT))
                         .contentType(APPLICATION_JSON)
                         .content(duplicateUserJson))
                 .andExpect(status().isConflict());
@@ -117,13 +126,17 @@ public class UserControllerIT {
 
     @Test
     void deleteUserShouldReturnNoContentWhenUserExists() throws Exception {
-        mockMvc.perform(delete(USERS_BY_ID, userId))
+        mockMvc.perform(withAuth(delete(USERS_BY_ID, userId)))
                 .andExpect(status().isNoContent());
     }
 
     @Test
     void deleteUserShouldReturnNoContentWhenUserDoesNotExist() throws Exception {
-        mockMvc.perform(delete(USERS_BY_ID, UUID.randomUUID()))
+        mockMvc.perform(withAuth(delete(USERS_BY_ID, UUID.randomUUID())))
                 .andExpect(status().isNoContent());
+    }
+
+    private MockHttpServletRequestBuilder withAuth(MockHttpServletRequestBuilder builder) {
+        return builder.header("Authorization", "Bearer " + accessToken);
     }
 }

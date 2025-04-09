@@ -10,8 +10,10 @@ import org.testcontainers.utility.DockerImageName;
 
 import javax.sql.DataSource;
 
+import static com.github.alexanderhagenhoff.userservice.TestProfile.INTEGRATION_TEST;
+
 @TestConfiguration
-@Profile("integrationtest")
+@Profile(INTEGRATION_TEST)
 public class TestContainersDBConfiguration {
 
     private static final String POSTGRES_VERSION = "postgres:16.3";
