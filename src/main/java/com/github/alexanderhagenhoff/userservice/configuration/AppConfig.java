@@ -7,9 +7,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -18,7 +16,6 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -28,48 +25,53 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
+
+import static java.time.Duration.ofHours;
+import static java.util.UUID.randomUUID;
+import static org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
 
 @Configuration
 public class AppConfig {
 
     private static final int RSA_KEY_SIZE = 2048;
+    private static final int OAUTH_TOKEN_VALID_FOR_HOURS = 6;
+
     private static final String CRYPTO_ALGORITHM = "RSA";
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance(); //todo replace
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public RegisteredClientRepository registeredClientRepository() throws IOException {
+    public RegisteredClientRepository registeredClientRepository(PasswordEncoder passwordEncoder) throws IOException {
         Properties clientProps = new Properties();
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("secret/clients.properties")) {
-            if (is == null) throw new FileNotFoundException("secret/clients.properties not found. You have to configure clients.properties to allow oauth2 access.");
+            if (is == null)
+                throw new FileNotFoundException("secret/clients.properties not found. You have to configure clients.properties to allow oauth2 access.");
             clientProps.load(is);
         }
 
-        List<RegisteredClient> clients = loadRegisteredClients(clientProps);
+        List<RegisteredClient> clients = loadRegisteredClients(clientProps, passwordEncoder);
 
         return new InMemoryRegisteredClientRepository(clients);
     }
 
-    private static List<RegisteredClient> loadRegisteredClients(Properties clientProperties) {
+    private List<RegisteredClient> loadRegisteredClients(Properties clientProperties, PasswordEncoder passwordEncoder) {
         List<RegisteredClient> clients = new ArrayList<>();
         clientProperties.stringPropertyNames().forEach(clientId -> {
             String clientSecret = clientProperties.getProperty(clientId);
-            RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+            RegisteredClient client = RegisteredClient.withId(randomUUID().toString())
                     .clientId(clientId)
-                    .clientSecret(clientSecret)
+                    .clientSecret(passwordEncoder.encode(clientSecret))
                     .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
                     .tokenSettings(TokenSettings.builder()
-                            .accessTokenTimeToLive(Duration.ofHours(1))
+                            .accessTokenTimeToLive(ofHours(OAUTH_TOKEN_VALID_FOR_HOURS))
                             .build())
-                    .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                    .clientAuthenticationMethod(CLIENT_SECRET_BASIC)
                     .build();
             clients.add(client);
         });
@@ -93,7 +95,7 @@ public class AppConfig {
 
         RSAKey rsaKey = new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
-                .keyID(String.valueOf(UUID.randomUUID()))
+                .keyID(String.valueOf(randomUUID()))
                 .build();
 
         JWKSet jwkSet = new JWKSet(rsaKey);
