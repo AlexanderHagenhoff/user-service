@@ -9,7 +9,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.Base64;
-import java.util.Properties;
 
 import static com.github.alexanderhagenhoff.userservice.TestProfile.INTEGRATION_TEST;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -29,17 +28,14 @@ public class OAuth2TestHelper {
     private static final String PARAMETER_GRANT_TYPE = "grant_type";
     private static final String GRANT_TYPE_CLIENT_CREDENTIALS = "client_credentials";
     private static final String MISSING_MOCK_MVC_MESSAGE = "MockMvc is not available in this context. You might want to use '@AutoConfigureMockMvc' to provide it.";
+    private static final String ID_TEST_CLIENT_1 = "test-client-1";
+    private static final String SECRET_TEST_CLIENT_1 = "test-secret-1";
 
-    private final ClientConfigurationProperties clientConfig;
     private final ObjectProvider<MockMvc> mockMvcProvider;
 
     private String cachedToken;
 
-    public OAuth2TestHelper(
-            ClientConfigurationProperties clientConfig,
-            ObjectProvider<MockMvc> mockMvcProvider
-    ) {
-        this.clientConfig = clientConfig;
+    public OAuth2TestHelper(ObjectProvider<MockMvc> mockMvcProvider) {
         this.mockMvcProvider = mockMvcProvider;
     }
 
@@ -53,11 +49,7 @@ public class OAuth2TestHelper {
     private String fetchNewToken() throws Exception {
         MockMvc mockMvc = getMockMvc();
 
-        Properties clients = clientConfig.loadClients();
-        String clientId = clients.stringPropertyNames().iterator().next();
-        String clientSecret = clients.getProperty(clientId);
-
-        String credentials = clientId + ":" + clientSecret;
+        String credentials = ID_TEST_CLIENT_1 + ":" + SECRET_TEST_CLIENT_1;
         String basicAuth = "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes());
 
         MvcResult result = mockMvc.perform(
