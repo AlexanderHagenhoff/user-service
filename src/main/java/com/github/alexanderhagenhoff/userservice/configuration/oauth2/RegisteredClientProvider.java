@@ -28,9 +28,13 @@ public class RegisteredClientProvider {
 
         return RegisteredClient.withId(uuidString)
                 .clientId(clientId)
-                .clientSecret(encoder.encode(clientSecret))
+                .clientSecret(clientSecret)
                 .clientAuthenticationMethod(CLIENT_SECRET_BASIC)
                 .authorizationGrantType(CLIENT_CREDENTIALS)
+                .scopes(strings -> {
+                    strings.add("api:read");  //todo load from config
+                    strings.add("api:write");
+                })
                 .tokenSettings(TokenSettings.builder()
                         .accessTokenTimeToLive(ACCESS_TOKEN_TTL)
                         .build())
