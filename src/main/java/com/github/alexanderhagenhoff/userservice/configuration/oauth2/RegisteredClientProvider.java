@@ -1,5 +1,6 @@
 package com.github.alexanderhagenhoff.userservice.configuration.oauth2;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
@@ -17,7 +18,7 @@ import static org.springframework.security.oauth2.core.ClientAuthenticationMetho
 public class RegisteredClientProvider {
     private static final Duration ACCESS_TOKEN_TTL = Duration.ofHours(6);
 
-    public List<RegisteredClient> createClients(Properties clientProperties, PasswordEncoder encoder) {
+    public List<RegisteredClient> createClients(@NonNull Properties clientProperties, PasswordEncoder encoder) {
         return clientProperties.stringPropertyNames().stream()
                 .map(clientId -> createClient(clientId, clientProperties.getProperty(clientId), encoder))
                 .toList();
