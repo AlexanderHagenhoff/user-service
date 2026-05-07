@@ -21,13 +21,15 @@ import java.util.UUID;
 @EntityListeners(AuditingEntityListener.class)
 public class User {
 
+    private static final String ID_TYPE = "UUID";
+
     @Id
-    @GeneratedValue(generator = "UUID")
+    @GeneratedValue(generator = ID_TYPE)
     @GenericGenerator(
-            name = "UUID",
+            name = ID_TYPE,
             strategy = "org.hibernate.id.UUIDGenerator"
     )
-    @Column(columnDefinition = "UUID", updatable = false, nullable = false)
+    @Column(columnDefinition = ID_TYPE, updatable = false, nullable = false)
     private UUID id;
 
     @Column
