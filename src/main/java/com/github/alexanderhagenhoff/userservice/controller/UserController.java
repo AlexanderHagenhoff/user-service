@@ -1,29 +1,25 @@
 package com.github.alexanderhagenhoff.userservice.controller;
 
-import com.github.alexanderhagenhoff.userservice.exception.EmailAlreadyInUseException;
 import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
 import com.github.alexanderhagenhoff.userservice.service.UserService;
-import com.github.alexanderhagenhoff.userservice.service.dto.CreateUserDto;
 import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
+import com.github.alexanderhagenhoff.userservice.service.dto.UserUpsertDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
-
-import static org.springframework.http.HttpStatus.CONFLICT;
-import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
 @RequestMapping("/users")
@@ -52,36 +48,19 @@ public class UserController {
         }
     }
 
-    @Operation(summary = "Retrieve a user by email", description = "Finds a user in the system by their email address.")
+    @Operation(
+            summary = "Upsert user",
+            description = "Finds an existing user by external subject ID or creates a new one."
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User found"),
-            @ApiResponse(responseCode = "404", description = "User not found")
+            @ApiResponse(responseCode = "200", description = "User existed and was retrieved"),
+            @ApiResponse(responseCode = "201", description = "User was created")
     })
-    @GetMapping("/email")
-    public ResponseEntity<UserDto> getUserByEmail(
-            @Parameter(description = "Email address of the user to retrieve") @RequestParam(name = "email") String email) {
-        UserDto userDto = userService.getUserByEmail(email);
-        if (userDto == null) {
-            return ResponseEntity.notFound().build();
-        }
+    @PutMapping("")
+    public ResponseEntity<UserDto> upsertUser(@Valid @RequestBody UserUpsertDto request) {
+        UserDto userDto = userService.getOrCreateUser(request.externalSubjectId(), request.emailHash());
 
         return ResponseEntity.ok(userDto);
-    }
-
-    @Operation(summary = "Create a new user", description = "Adds a new user to the system.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "User successfully created"),
-            @ApiResponse(responseCode = "409", description = "Email already in use")
-    })
-    @PostMapping
-    public ResponseEntity<UserDto> createUser(
-            @Parameter(description = "User object containing first name, last name, and email") @RequestBody CreateUserDto createUserDto) {
-        try {
-            UserDto createdUserDto = userService.createUser(createUserDto);
-            return ResponseEntity.status(CREATED).body(createdUserDto);
-        } catch (EmailAlreadyInUseException e) {
-            return ResponseEntity.status(CONFLICT).build();
-        }
     }
 
     @Operation(summary = "Delete a user", description = "Removes a user from the system by their UUID.")
