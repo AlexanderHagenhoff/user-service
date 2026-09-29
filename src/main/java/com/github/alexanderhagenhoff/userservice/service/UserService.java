@@ -14,6 +14,9 @@ import java.util.UUID;
 
 @Service
 public class UserService {
+
+    private static final String ERROR_MESSAGE_EMAIL_CHANGED = "Email has been changed! User [%s]. Login not possible.";
+
     private final UserRepository userRepository;
     private final UserDtoMapper userDtoMapper;
 
@@ -44,5 +47,33 @@ public class UserService {
 
     public void deleteUser(UUID uuid) {
         userRepository.deleteById(uuid);
+    }
+
+    @Transactional
+    public UserDto getOrCreateUser(String externalSubjectId, String email) {
+        User userEntity = userRepository.findByExternalSubjectId(externalSubjectId)
+                .map(existingUser -> throwExceptionOnEmailChange(existingUser, email))
+                .orElseGet(() -> createNewUser(externalSubjectId, email));
+
+        return userDtoMapper.toDto(userEntity);
+    }
+
+    private User throwExceptionOnEmailChange(User user, String emailHash) {
+        String currentEmail = user.getEmail();
+
+        if (!emailHash.equals(currentEmail)) {
+            UUID userId = user.getId();
+            throw new RuntimeException(ERROR_MESSAGE_EMAIL_CHANGED.formatted(userId));
+        }
+
+        return user;
+    }
+
+    private User createNewUser(String externalSubjectId, String email) {
+        User newUser = new User();
+        newUser.setExternalSubjectId(externalSubjectId);
+        newUser.setEmail(email);
+
+        return userRepository.save(newUser);
     }
 }

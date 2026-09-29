@@ -17,7 +17,7 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema = "user-service")
 @EntityListeners(AuditingEntityListener.class)
 public class User {
 
@@ -40,6 +40,9 @@ public class User {
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false, unique = true)
+    private String externalSubjectId;
 
     @CreatedDate
     @Column(updatable = false)
@@ -87,6 +90,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getExternalSubjectId() {
+        return externalSubjectId;
+    }
+
+    public void setExternalSubjectId(String externalSubjectId) {
+        this.externalSubjectId = externalSubjectId;
     }
 
     public ZonedDateTime getCreatedAt() {
