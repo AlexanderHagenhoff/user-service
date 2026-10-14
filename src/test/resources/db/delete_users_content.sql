@@ -1,1 +1,1 @@
-DELETE FROM users;
+DELETE FROM "user-service".users;

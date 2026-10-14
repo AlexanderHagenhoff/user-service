@@ -28,6 +28,7 @@ class UserRepositoryIT {
     private static final String EXPECTED_EMAIL = "expected_email_for_test";
     private static final String EXPECTED_FIRST_NAME = "expected_first_name";
     private static final String EXPECTED_LAST_NAME = "expected_last_name";
+    private static final String EXPECTED_EXTERNAL_SUBJECT_ID = "expected_external_subject_id";
 
     @Autowired
     private UserRepository userRepository;
@@ -39,7 +40,7 @@ class UserRepositoryIT {
 
     @Test
     void shouldSaveAndRetrieveUser() {
-        User newUser = new User(EXPECTED_FIRST_NAME, EXPECTED_LAST_NAME, EXPECTED_EMAIL);
+        User newUser = new User(EXPECTED_FIRST_NAME, EXPECTED_LAST_NAME, EXPECTED_EMAIL, EXPECTED_EXTERNAL_SUBJECT_ID);
         assertNull(newUser.getId(), "Not saved user should not have a UUID");
 
         User savedUser = userRepository.save(newUser);
@@ -98,7 +99,7 @@ class UserRepositoryIT {
         String expectedSurName = "Name";
         String expectedEmail = "email";
 
-        User user = userRepository.save(new User("original_first_name", "original_sur_name", "original_mail"));
+        User user = userRepository.save(new User("original_first_name", "original_sur_name", "original_mail", "original_external_subject_id"));
         ZonedDateTime originalModifiedDate = user.getLastModifiedAt();
 
         user.setFirstName(expectedFirstName);
@@ -114,7 +115,7 @@ class UserRepositoryIT {
 
     @NotNull
     private User createTestUser() {
-        User testUser = new User(EXPECTED_FIRST_NAME, EXPECTED_LAST_NAME, EXPECTED_EMAIL);
+        User testUser = new User(EXPECTED_FIRST_NAME, EXPECTED_LAST_NAME, EXPECTED_EMAIL, EXPECTED_EXTERNAL_SUBJECT_ID);
 
         return userRepository.save(testUser);
     }

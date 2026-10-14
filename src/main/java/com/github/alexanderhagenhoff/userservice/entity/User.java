@@ -54,10 +54,11 @@ public class User {
     public User() {
     }
 
-    public User(String firstName, String lastName, String email) {
+    public User(String firstName, String lastName, String email, String externalSubjectId) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.externalSubjectId = externalSubjectId;
     }
 
     public UUID getId() {
