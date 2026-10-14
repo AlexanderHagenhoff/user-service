@@ -3,7 +3,7 @@ package com.github.alexanderhagenhoff.userservice.controller;
 import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
 import com.github.alexanderhagenhoff.userservice.service.UserService;
 import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
-import com.github.alexanderhagenhoff.userservice.service.dto.UserUpsertDto;
+import com.github.alexanderhagenhoff.userservice.service.dto.ExternalLoginDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -57,7 +57,7 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "User was created")
     })
     @PutMapping("")
-    public ResponseEntity<UserDto> upsertUser(@Valid @RequestBody UserUpsertDto request) {
+    public ResponseEntity<UserDto> getOrCreateUser(@Valid @RequestBody ExternalLoginDto request) {
         UserDto userDto = userService.getOrCreateUser(request.externalSubjectId(), request.emailHash());
 
         return ResponseEntity.ok(userDto);

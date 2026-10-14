@@ -27,6 +27,7 @@ class UserServiceTest {
     private static final String TEST_EMAIL = "test@example.com";
     private static final String TEST_FIRST_NAME = "Test";
     private static final String TEST_LAST_NAME = "User";
+    private static final String TEST_EXTERNAL_SUBJECT_ID = "test_external_subject_id";
 
     @Mock
     private UserRepository userRepository;
@@ -42,8 +43,8 @@ class UserServiceTest {
 
     @BeforeEach
     void setUp() {
-        testUser = new User(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
-        testUserDto = new UserDto(TEST_ID, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL, ZonedDateTime.now(), ZonedDateTime.now());
+        testUser = new User(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL, TEST_EXTERNAL_SUBJECT_ID);
+        testUserDto = new UserDto(TEST_ID, TEST_FIRST_NAME, ZonedDateTime.now(), ZonedDateTime.now());
     }
 
     @Test
