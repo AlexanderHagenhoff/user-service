@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16.3:///user-service
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  flyway:
+    enabled: true
+    schemas: public, user-service
+    create-schemas: true
+    locations: ['classpath:db/migration']
+  jpa:
+    hibernate:
+      ddl-auto: none

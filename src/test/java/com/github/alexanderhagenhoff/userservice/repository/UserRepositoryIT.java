@@ -1,13 +1,14 @@
 package com.github.alexanderhagenhoff.userservice.repository;
 
+import com.github.alexanderhagenhoff.userservice.configuration.TestFlywayConfiguration;
 import com.github.alexanderhagenhoff.userservice.entity.User;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.jdbc.Sql;
 
 import java.time.ZonedDateTime;
 import java.util.Optional;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles(INTEGRATION_TEST)
-@Sql(scripts = "classpath:db/delete_users_content.sql")
+@Import(TestFlywayConfiguration.class)
 class UserRepositoryIT {
 
     private static final String EXPECTED_EMAIL = "expected_email_for_test";

@@ -38,8 +38,10 @@ public class TestContainersDBConfiguration {
     @Bean
     @Primary
     public DataSource dataSource(PostgreSQLContainer<?> postgreSQLContainer) {
+        String jdbcUrl = postgreSQLContainer.getJdbcUrl() + "&currentSchema=user-service";
+
         return DataSourceBuilder.create()
-                .url(postgreSQLContainer.getJdbcUrl())
+                .url(jdbcUrl)
                 .username(postgreSQLContainer.getUsername())
                 .password(postgreSQLContainer.getPassword())
                 .build();

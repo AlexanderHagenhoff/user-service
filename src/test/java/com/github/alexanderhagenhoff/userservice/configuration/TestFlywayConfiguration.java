@@ -17,6 +17,9 @@ public class TestFlywayConfiguration {
     public Flyway getFlyway(DataSource dataSource) {
         return Flyway.configure()
                 .dataSource(dataSource)
+                .schemas("user-service")
+                .defaultSchema("user-service")
+                .createSchemas(true)
                 .locations("classpath:db/migration")
                 .load();
     }
