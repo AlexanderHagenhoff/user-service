@@ -25,9 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @Sql(scripts = "classpath:db/delete_users_content.sql")
 class UserServiceIT {
 
-    private static final String TEST_EMAIL = "test_email@example.com";
+    private static final String TEST_EMAIL_HASH = "test_email_hash";
     private static final String TEST_FIRST_NAME = "Test";
     private static final String TEST_LAST_NAME = "User";
+    private static final String TEST_EXTERNAL_SUBJECT_ID = "test_external_subject_id";
     private static final String NEW_EMAIL = "new_email@example.com";
     private static final String NEW_FIRST_NAME = "New";
     private static final String NEW_LAST_NAME = "User";
@@ -43,8 +44,7 @@ class UserServiceIT {
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
-        CreateUserDto createUserDto = new CreateUserDto(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
-        UserDto createdUserDto = userService.createUser(createUserDto);
+        UserDto createdUserDto = userService.getOrCreateUser(TEST_EXTERNAL_SUBJECT_ID, TEST_EMAIL_HASH);
         userId = createdUserDto.id();
     }
 
@@ -52,36 +52,32 @@ class UserServiceIT {
     void shouldRetrieveUserById() throws Exception {
         UserDto userDto = userService.getUser(userId);
         assertNotNull(userDto);
-        assertEquals(TEST_EMAIL, userDto.email());
+        assertEquals(TEST_EMAIL_HASH, userDto.email());
     }
 
     @Test
     void shouldRetrieveUserByEmail() {
-        UserDto userDto = userService.getUserByEmail(TEST_EMAIL);
+        UserDto userDto = userService.getUserByEmail(TEST_EMAIL_HASH);
         assertNotNull(userDto);
         assertEquals(userId, userDto.id());
     }
 
     @Test
     void shouldCreateUserSuccessfully() throws Exception {
-        CreateUserDto createUserDto = new CreateUserDto(NEW_FIRST_NAME, NEW_LAST_NAME, NEW_EMAIL);
+        CreateUserDto createUserDto = new CreateUserDto(NEW_FIRST_NAME, NEW_LAST_NAME, TEST_EXTERNAL_SUBJECT_ID, NEW_EMAIL);
         UserDto createdUserDto = userService.createUser(createUserDto);
 
         assertNotNull(createdUserDto.id());
-        assertEquals(NEW_FIRST_NAME, createdUserDto.firstName());
-        assertEquals(NEW_LAST_NAME, createdUserDto.lastName());
         assertEquals(NEW_EMAIL, createdUserDto.email());
 
         UserDto userFromDb = userService.getUser(createdUserDto.id());
         assertNotNull(userFromDb);
-        assertEquals(NEW_FIRST_NAME, userFromDb.firstName());
-        assertEquals(NEW_LAST_NAME, userFromDb.lastName());
         assertEquals(NEW_EMAIL, userFromDb.email());
     }
 
     @Test
     void shouldThrowExceptionWhenEmailExists() {
-        CreateUserDto duplicateUserDto = new CreateUserDto(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
+        CreateUserDto duplicateUserDto = new CreateUserDto(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EXTERNAL_SUBJECT_ID, TEST_EMAIL_HASH);
         assertThrows(EmailAlreadyInUseException.class, () -> userService.createUser(duplicateUserDto));
     }
 

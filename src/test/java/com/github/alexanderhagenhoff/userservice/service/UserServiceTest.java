@@ -44,7 +44,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         testUser = new User(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL, TEST_EXTERNAL_SUBJECT_ID);
-        testUserDto = new UserDto(TEST_ID, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL, ZonedDateTime.now(), ZonedDateTime.now());
+        testUserDto = new UserDto(TEST_ID, TEST_FIRST_NAME, ZonedDateTime.now(), ZonedDateTime.now());
     }
 
     @Test

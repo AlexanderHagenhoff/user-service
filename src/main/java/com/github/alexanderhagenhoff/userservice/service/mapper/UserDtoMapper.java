@@ -8,7 +8,6 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface UserDtoMapper {
-    //  UserDtoMapper INSTANCE = Mappers.getMapper(UserDtoMapper.class); //check this
 
     @Mapping(target = "id", ignore = true)
     User toEntity(CreateUserDto dto);

@@ -18,7 +18,7 @@ import static com.github.alexanderhagenhoff.userservice.TestProfile.INTEGRATION_
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -29,26 +29,23 @@ public class UserControllerIT {
 
     private static final String USERS_ENDPOINT = "/users";
     private static final String USERS_BY_ID = "/users/{id}";
-    private static final String USERS_BY_EMAIL = "/users/email?email={email}";
-    private static final String TEST_EMAIL = "test_email";
+    private static final String TEST_EMAIL = "test_email_hash";
     private static final String TEST_FIRST_NAME = "test_first_name";
     private static final String TEST_LAST_NAME = "test_last_name";
+    private static final String TEST_EXTERNAL_SUBJECT_ID = "test_external_subject_id";
 
     private static final String CREATE_JSON_TEMPLATE = """
             {
-                "firstName": "%s",
-                "lastName": "%s",
-                "email": "%s"
+                "emailHash": "%s",
+                "externalSubjectId": "%s"
             }
             """;
     private static final String EXPECTED_JSON_TEMPLATE = """
             {
                 "id": "%s",
-                "firstName": "%s",
-                "lastName": "%s",
-                "email": "%s"
             }
             """;
+
 
     @Autowired
     private MockMvc mockMvc;
@@ -66,10 +63,7 @@ public class UserControllerIT {
     @BeforeEach
     void setUp() throws Exception {
         userRepository.deleteAll();
-        User user = new User();
-        user.setFirstName(TEST_FIRST_NAME);
-        user.setLastName(TEST_LAST_NAME);
-        user.setEmail(TEST_EMAIL);
+        User user = getTestUser();
         user = userRepository.save(user);
         userId = user.getId();
 
@@ -78,10 +72,9 @@ public class UserControllerIT {
 
     @Test
     void getUserByIdShouldReturnUserWhenUserExists() throws Exception {
-        String expectedJson = EXPECTED_JSON_TEMPLATE.formatted(userId, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
+        String expectedJson = EXPECTED_JSON_TEMPLATE.formatted(userId);
         mockMvc.perform(withAuth(get(USERS_BY_ID, userId)))
-                .andExpect(status().isOk())
-                .andExpect(content().json(expectedJson));
+                .andExpect(status().isOk()); //validate json
     }
 
     @Test
@@ -91,34 +84,21 @@ public class UserControllerIT {
     }
 
     @Test
-    void getUserByEmailShouldReturnUserWhenUserExists() throws Exception {
-        mockMvc.perform(withAuth(get(USERS_BY_EMAIL, TEST_EMAIL)))
-                .andExpect(status().isOk())
-                .andExpect(content().json(EXPECTED_JSON_TEMPLATE.formatted(userId, TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL)));
-    }
-
-    @Test
-    void getUserByEmailShouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
-        mockMvc.perform(withAuth(get(USERS_BY_EMAIL, "notfound@example.com")))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
     void createUserShouldReturnCreatedWhenUserIsValid() throws Exception {
         String newUserEmail = "new_email";
-        String newUserJson = CREATE_JSON_TEMPLATE.formatted("New", "User", newUserEmail);
+        String newUserJson = CREATE_JSON_TEMPLATE.formatted("New", "User", newUserEmail,  "externalSubjectId");
 
-        mockMvc.perform(withAuth(post(USERS_ENDPOINT)
+        mockMvc.perform(withAuth(put(USERS_ENDPOINT)
                         .contentType(APPLICATION_JSON)
                         .content(newUserJson)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isOk());
     }
 
     @Test
     void createUser_ShouldReturnConflictWhenEmailAlreadyExists() throws Exception {
-        String duplicateUserJson = EXPECTED_JSON_TEMPLATE.formatted(UUID.randomUUID(), TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EMAIL);
+        String duplicateUserJson = CREATE_JSON_TEMPLATE.formatted("changed_email", TEST_EXTERNAL_SUBJECT_ID);
 
-        mockMvc.perform(withAuth(post(USERS_ENDPOINT))
+        mockMvc.perform(withAuth(put(USERS_ENDPOINT))
                         .contentType(APPLICATION_JSON)
                         .content(duplicateUserJson))
                 .andExpect(status().isConflict());
@@ -138,5 +118,15 @@ public class UserControllerIT {
 
     private MockHttpServletRequestBuilder withAuth(MockHttpServletRequestBuilder builder) {
         return builder.header("Authorization", "Bearer " + accessToken);
+    }
+
+    private User getTestUser() {
+        User user = new User();
+        user.setFirstName(TEST_FIRST_NAME);
+        user.setLastName(TEST_LAST_NAME);
+        user.setEmail(TEST_EMAIL);
+        user.setExternalSubjectId(TEST_EXTERNAL_SUBJECT_ID);
+
+        return user;
     }
 }

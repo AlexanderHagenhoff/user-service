@@ -15,8 +15,6 @@ import java.util.UUID;
 @Service
 public class UserService {
 
-    private static final String ERROR_MESSAGE_EMAIL_CHANGED = "Email has been changed! User [%s]. Login not possible.";
-
     private final UserRepository userRepository;
     private final UserDtoMapper userDtoMapper;
 
@@ -42,7 +40,9 @@ public class UserService {
             throw new EmailAlreadyInUseException(createUserDto.email());
         }
         User user = userDtoMapper.toEntity(createUserDto);
-        return userDtoMapper.toDto(userRepository.save(user));
+        User createdUser = userRepository.save(user);
+
+        return userDtoMapper.toDto(createdUser);
     }
 
     public void deleteUser(UUID uuid) {
@@ -50,29 +50,28 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto getOrCreateUser(String externalSubjectId, String email) {
+    public UserDto getOrCreateUser(String externalSubjectId, String emailHash) {
         User userEntity = userRepository.findByExternalSubjectId(externalSubjectId)
-                .map(existingUser -> throwExceptionOnEmailChange(existingUser, email))
-                .orElseGet(() -> createNewUser(externalSubjectId, email));
+                .map(existingUser -> throwExceptionOnEmailAlreadyInUse(existingUser, emailHash))
+                .orElseGet(() -> createNewUser(externalSubjectId, emailHash));
 
         return userDtoMapper.toDto(userEntity);
     }
 
-    private User throwExceptionOnEmailChange(User user, String emailHash) {
+    private User throwExceptionOnEmailAlreadyInUse(User user, String emailHash) {
         String currentEmail = user.getEmail();
 
         if (!emailHash.equals(currentEmail)) {
-            UUID userId = user.getId();
-            throw new RuntimeException(ERROR_MESSAGE_EMAIL_CHANGED.formatted(userId));
+            throw new EmailAlreadyInUseException(emailHash);
         }
 
         return user;
     }
 
-    private User createNewUser(String externalSubjectId, String email) {
+    private User createNewUser(String externalSubjectId, String emailHash) {
         User newUser = new User();
         newUser.setExternalSubjectId(externalSubjectId);
-        newUser.setEmail(email);
+        newUser.setEmail(emailHash);
 
         return userRepository.save(newUser);
     }
