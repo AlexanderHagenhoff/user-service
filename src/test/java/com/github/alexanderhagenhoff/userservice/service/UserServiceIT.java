@@ -1,6 +1,6 @@
 package com.github.alexanderhagenhoff.userservice.service;
 
-import com.github.alexanderhagenhoff.userservice.exception.EmailAlreadyInUseException;
+import com.github.alexanderhagenhoff.userservice.exception.EmailHashAlreadyInUseException;
 import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
 import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
 import com.github.alexanderhagenhoff.userservice.service.dto.CreateUserDto;
@@ -50,7 +50,7 @@ class UserServiceIT {
     void shouldRetrieveUserById() throws Exception {
         UserDto userDto = userService.getUser(userId);
         assertNotNull(userDto);
-        assertEquals(TEST_EMAIL_HASH, userDto.email());
+        assertEquals(TEST_EMAIL_HASH, userDto.emailHash());
     }
 
     @Test
@@ -66,17 +66,17 @@ class UserServiceIT {
         UserDto createdUserDto = userService.createUser(createUserDto);
 
         assertNotNull(createdUserDto.id());
-        assertEquals(NEW_EMAIL, createdUserDto.email());
+        assertEquals(NEW_EMAIL, createdUserDto.emailHash());
 
         UserDto userFromDb = userService.getUser(createdUserDto.id());
         assertNotNull(userFromDb);
-        assertEquals(NEW_EMAIL, userFromDb.email());
+        assertEquals(NEW_EMAIL, userFromDb.emailHash());
     }
 
     @Test
     void shouldThrowExceptionWhenEmailExists() {
         CreateUserDto duplicateUserDto = new CreateUserDto(TEST_EXTERNAL_SUBJECT_ID, TEST_EMAIL_HASH);
-        assertThrows(EmailAlreadyInUseException.class, () -> userService.createUser(duplicateUserDto));
+        assertThrows(EmailHashAlreadyInUseException.class, () -> userService.createUser(duplicateUserDto));
     }
 
     @Test

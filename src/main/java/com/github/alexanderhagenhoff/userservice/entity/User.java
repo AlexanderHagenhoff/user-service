@@ -33,7 +33,7 @@ public class User {
     private UUID id;
 
     @Column(nullable = false, unique = true)
-    private String email;
+    private String emailHash;
 
     @Column(nullable = false, unique = true)
     private String externalSubjectId;
@@ -48,8 +48,8 @@ public class User {
     public User() {
     }
 
-    public User(String email, String externalSubjectId) {
-        this.email = email;
+    public User(String emailHash, String externalSubjectId) {
+        this.emailHash = emailHash;
         this.externalSubjectId = externalSubjectId;
     }
 
@@ -61,12 +61,12 @@ public class User {
         this.id = id;
     }
 
-    public String getEmail() {
-        return email;
+    public String getEmailHash() {
+        return emailHash;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setEmailHash(String emailHash) {
+        this.emailHash = emailHash;
     }
 
     public String getExternalSubjectId() {

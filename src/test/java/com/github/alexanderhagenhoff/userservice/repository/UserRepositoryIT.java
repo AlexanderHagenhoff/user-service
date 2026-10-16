@@ -49,7 +49,7 @@ class UserRepositoryIT {
         assertTrue(optionalFoundUser.isPresent(), "User should be found");
 
         User foundUser = optionalFoundUser.get();
-        assertEquals(EXPECTED_EMAIL, foundUser.getEmail());
+        assertEquals(EXPECTED_EMAIL, foundUser.getEmailHash());
         assertNotNull(foundUser.getCreatedAt(), "Created date should be set");
         assertNotNull(foundUser.getLastModifiedAt(), "Modified date should be set");
         assertNotNull(foundUser.getId(), "Loaded user should have a UUID");
@@ -59,17 +59,17 @@ class UserRepositoryIT {
     void shouldCheckEmailExistence() {
         User user = createTestUser();
 
-        assertTrue(userRepository.existsByEmail(EXPECTED_EMAIL),
+        assertTrue(userRepository.existsByEmailHash(EXPECTED_EMAIL),
                 "Email should exist");
-        assertFalse(userRepository.existsByEmail("unknown@example.com"),
-                "Unknown email should not exist");
+        assertFalse(userRepository.existsByEmailHash("unknown@example.com"),
+                "Unknown emailHash should not exist");
     }
 
     @Test
     void shouldFindUserByEmail() {
         User expectedUser = createTestUser();
 
-        User actualUser = userRepository.findByEmail(EXPECTED_EMAIL);
+        User actualUser = userRepository.findByEmailHash(EXPECTED_EMAIL);
 
         assertNotNull(actualUser, "User should be found");
         assertEquals(expectedUser.getId(), actualUser.getId());
@@ -91,12 +91,12 @@ class UserRepositoryIT {
     void shouldUpdateUser() {
         String expectedFirstName = "Updated";
         String expectedSurName = "Name";
-        String expectedEmail = "email";
+        String expectedEmail = "emailHash";
 
         User user = userRepository.save(new User("original_mail", "original_external_subject_id"));
         ZonedDateTime originalModifiedDate = user.getLastModifiedAt();
 
-        user.setEmail(expectedEmail);
+        user.setEmailHash(expectedEmail);
         User updatedUser = userRepository.save(user);
 
         assertTrue(updatedUser.getLastModifiedAt().isAfter(originalModifiedDate),

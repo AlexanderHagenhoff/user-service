@@ -53,6 +53,6 @@ class UserServiceTest {
         UserDto foundUser = userService.getUser(TEST_ID);
         assertNotNull(foundUser);
         assertEquals(TEST_ID, foundUser.id());
-        assertEquals(TEST_EMAIL, foundUser.email());
+        assertEquals(TEST_EMAIL, foundUser.emailHash());
     }
 }

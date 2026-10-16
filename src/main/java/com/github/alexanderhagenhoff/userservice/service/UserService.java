@@ -1,7 +1,7 @@
 package com.github.alexanderhagenhoff.userservice.service;
 
 import com.github.alexanderhagenhoff.userservice.entity.User;
-import com.github.alexanderhagenhoff.userservice.exception.EmailAlreadyInUseException;
+import com.github.alexanderhagenhoff.userservice.exception.EmailHashAlreadyInUseException;
 import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
 import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
 import com.github.alexanderhagenhoff.userservice.service.dto.CreateUserDto;
@@ -29,15 +29,16 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException(uuid));
     }
 
-    public UserDto getUserByEmail(String email) {
-        User user = userRepository.findByEmail(email);
+    public UserDto getUserByEmail(String emailHash) {
+        User user = userRepository.findByEmailHash(emailHash);
+
         return userDtoMapper.toDto(user);
     }
 
     @Transactional
     public UserDto createUser(CreateUserDto createUserDto) {
-        if (userRepository.existsByEmail(createUserDto.email())) {
-            throw new EmailAlreadyInUseException(createUserDto.email());
+        if (userRepository.existsByEmailHash(createUserDto.emailHash())) {
+            throw new EmailHashAlreadyInUseException(createUserDto.emailHash());
         }
         User user = userDtoMapper.toEntity(createUserDto);
         User createdUser = userRepository.save(user);
@@ -52,17 +53,17 @@ public class UserService {
     @Transactional
     public UserDto getOrCreateUser(String externalSubjectId, String emailHash) {
         User userEntity = userRepository.findByExternalSubjectId(externalSubjectId)
-                .map(existingUser -> throwExceptionOnEmailAlreadyInUse(existingUser, emailHash))
+                .map(existingUser -> throwExceptionOnEmailHashAlreadyInUse(existingUser, emailHash))
                 .orElseGet(() -> createNewUser(externalSubjectId, emailHash));
 
         return userDtoMapper.toDto(userEntity);
     }
 
-    private User throwExceptionOnEmailAlreadyInUse(User user, String emailHash) {
-        String currentEmail = user.getEmail();
+    private User throwExceptionOnEmailHashAlreadyInUse(User user, String emailHash) {
+        String currentEmail = user.getEmailHash();
 
         if (!emailHash.equals(currentEmail)) {
-            throw new EmailAlreadyInUseException(emailHash);
+            throw new EmailHashAlreadyInUseException(emailHash);
         }
 
         return user;
@@ -71,7 +72,7 @@ public class UserService {
     private User createNewUser(String externalSubjectId, String emailHash) {
         User newUser = new User();
         newUser.setExternalSubjectId(externalSubjectId);
-        newUser.setEmail(emailHash);
+        newUser.setEmailHash(emailHash);
 
         return userRepository.save(newUser);
     }

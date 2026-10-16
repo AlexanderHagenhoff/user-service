@@ -62,7 +62,7 @@ The service supports the following user management functionalities:
 
 - **Create users**: Allows adding new users with necessary details.
 - **Read users**: Enables retrieving user information by ID or other search parameters.
-- **Update users**: Modify user data such as name, email, etc.
+- **Update users**: Modify user data such email hash, etc.
 - **Delete users**: Removes users from the system.
 
 ### OAuth2 Authentication:

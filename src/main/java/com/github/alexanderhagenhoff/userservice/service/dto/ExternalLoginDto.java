@@ -6,7 +6,7 @@ public record ExternalLoginDto(
         @NotBlank(message = "externalSubjectId must not be blank")
         String externalSubjectId,
 
-        @NotBlank(message = "email must not be blank")
+        @NotBlank(message = "emailHash must not be blank")
         String emailHash
 ) {
 }
