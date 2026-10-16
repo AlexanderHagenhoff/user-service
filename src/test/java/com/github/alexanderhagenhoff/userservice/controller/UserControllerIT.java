@@ -119,7 +119,7 @@ public class UserControllerIT {
 
     private User getTestUser() {
         User user = new User();
-        user.setEmail(TEST_EMAIL);
+        user.setEmailHash(TEST_EMAIL);
         user.setExternalSubjectId(TEST_EXTERNAL_SUBJECT_ID);
 
         return user;
