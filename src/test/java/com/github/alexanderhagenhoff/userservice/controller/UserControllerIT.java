@@ -19,7 +19,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -30,8 +29,6 @@ public class UserControllerIT {
     private static final String USERS_ENDPOINT = "/users";
     private static final String USERS_BY_ID = "/users/{id}";
     private static final String TEST_EMAIL = "test_email_hash";
-    private static final String TEST_FIRST_NAME = "test_first_name";
-    private static final String TEST_LAST_NAME = "test_last_name";
     private static final String TEST_EXTERNAL_SUBJECT_ID = "test_external_subject_id";
 
     private static final String CREATE_JSON_TEMPLATE = """
@@ -86,7 +83,7 @@ public class UserControllerIT {
     @Test
     void createUserShouldReturnCreatedWhenUserIsValid() throws Exception {
         String newUserEmail = "new_email";
-        String newUserJson = CREATE_JSON_TEMPLATE.formatted("New", "User", newUserEmail,  "externalSubjectId");
+        String newUserJson = CREATE_JSON_TEMPLATE.formatted("New", "User", newUserEmail, "externalSubjectId");
 
         mockMvc.perform(withAuth(put(USERS_ENDPOINT)
                         .contentType(APPLICATION_JSON)
@@ -122,8 +119,6 @@ public class UserControllerIT {
 
     private User getTestUser() {
         User user = new User();
-        user.setFirstName(TEST_FIRST_NAME);
-        user.setLastName(TEST_LAST_NAME);
         user.setEmail(TEST_EMAIL);
         user.setExternalSubjectId(TEST_EXTERNAL_SUBJECT_ID);
 

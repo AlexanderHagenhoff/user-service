@@ -26,8 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class UserRepositoryIT {
 
     private static final String EXPECTED_EMAIL = "expected_email_for_test";
-    private static final String EXPECTED_FIRST_NAME = "expected_first_name";
-    private static final String EXPECTED_LAST_NAME = "expected_last_name";
     private static final String EXPECTED_EXTERNAL_SUBJECT_ID = "expected_external_subject_id";
 
     @Autowired
@@ -40,7 +38,7 @@ class UserRepositoryIT {
 
     @Test
     void shouldSaveAndRetrieveUser() {
-        User newUser = new User(EXPECTED_FIRST_NAME, EXPECTED_LAST_NAME, EXPECTED_EMAIL, EXPECTED_EXTERNAL_SUBJECT_ID);
+        User newUser = new User(EXPECTED_EMAIL, EXPECTED_EXTERNAL_SUBJECT_ID);
         assertNull(newUser.getId(), "Not saved user should not have a UUID");
 
         User savedUser = userRepository.save(newUser);
@@ -51,8 +49,6 @@ class UserRepositoryIT {
         assertTrue(optionalFoundUser.isPresent(), "User should be found");
 
         User foundUser = optionalFoundUser.get();
-        assertEquals(EXPECTED_FIRST_NAME, foundUser.getFirstName());
-        assertEquals(EXPECTED_LAST_NAME, foundUser.getLastName());
         assertEquals(EXPECTED_EMAIL, foundUser.getEmail());
         assertNotNull(foundUser.getCreatedAt(), "Created date should be set");
         assertNotNull(foundUser.getLastModifiedAt(), "Modified date should be set");
@@ -77,8 +73,6 @@ class UserRepositoryIT {
 
         assertNotNull(actualUser, "User should be found");
         assertEquals(expectedUser.getId(), actualUser.getId());
-        assertEquals(EXPECTED_FIRST_NAME, actualUser.getFirstName());
-        assertEquals(EXPECTED_LAST_NAME, actualUser.getLastName());
     }
 
     @Test
@@ -99,23 +93,19 @@ class UserRepositoryIT {
         String expectedSurName = "Name";
         String expectedEmail = "email";
 
-        User user = userRepository.save(new User("original_first_name", "original_sur_name", "original_mail", "original_external_subject_id"));
+        User user = userRepository.save(new User("original_mail", "original_external_subject_id"));
         ZonedDateTime originalModifiedDate = user.getLastModifiedAt();
 
-        user.setFirstName(expectedFirstName);
-        user.setLastName(expectedSurName);
         user.setEmail(expectedEmail);
         User updatedUser = userRepository.save(user);
 
-        assertEquals(expectedFirstName, updatedUser.getFirstName());
-        assertEquals(expectedSurName, updatedUser.getLastName());
         assertTrue(updatedUser.getLastModifiedAt().isAfter(originalModifiedDate),
                 "Last modified date should be updated");
     }
 
     @NotNull
     private User createTestUser() {
-        User testUser = new User(EXPECTED_FIRST_NAME, EXPECTED_LAST_NAME, EXPECTED_EMAIL, EXPECTED_EXTERNAL_SUBJECT_ID);
+        User testUser = new User(EXPECTED_EMAIL, EXPECTED_EXTERNAL_SUBJECT_ID);
 
         return userRepository.save(testUser);
     }

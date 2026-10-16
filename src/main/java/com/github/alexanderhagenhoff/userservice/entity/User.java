@@ -32,12 +32,6 @@ public class User {
     @Column(columnDefinition = ID_TYPE, updatable = false, nullable = false)
     private UUID id;
 
-    @Column
-    private String firstName;
-
-    @Column
-    private String lastName;
-
     @Column(nullable = false, unique = true)
     private String email;
 
@@ -54,9 +48,7 @@ public class User {
     public User() {
     }
 
-    public User(String firstName, String lastName, String email, String externalSubjectId) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public User(String email, String externalSubjectId) {
         this.email = email;
         this.externalSubjectId = externalSubjectId;
     }
@@ -67,22 +59,6 @@ public class User {
 
     public void setId(UUID id) {
         this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
     }
 
     public String getEmail() {
