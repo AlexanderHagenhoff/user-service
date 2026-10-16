@@ -26,8 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class UserServiceIT {
 
     private static final String TEST_EMAIL_HASH = "test_email_hash";
-    private static final String TEST_FIRST_NAME = "Test";
-    private static final String TEST_LAST_NAME = "User";
     private static final String TEST_EXTERNAL_SUBJECT_ID = "test_external_subject_id";
     private static final String NEW_EMAIL = "new_email@example.com";
     private static final String NEW_FIRST_NAME = "New";
@@ -64,7 +62,7 @@ class UserServiceIT {
 
     @Test
     void shouldCreateUserSuccessfully() throws Exception {
-        CreateUserDto createUserDto = new CreateUserDto(NEW_FIRST_NAME, NEW_LAST_NAME, TEST_EXTERNAL_SUBJECT_ID, NEW_EMAIL);
+        CreateUserDto createUserDto = new CreateUserDto(TEST_EXTERNAL_SUBJECT_ID, NEW_EMAIL);
         UserDto createdUserDto = userService.createUser(createUserDto);
 
         assertNotNull(createdUserDto.id());
@@ -77,7 +75,7 @@ class UserServiceIT {
 
     @Test
     void shouldThrowExceptionWhenEmailExists() {
-        CreateUserDto duplicateUserDto = new CreateUserDto(TEST_FIRST_NAME, TEST_LAST_NAME, TEST_EXTERNAL_SUBJECT_ID, TEST_EMAIL_HASH);
+        CreateUserDto duplicateUserDto = new CreateUserDto(TEST_EXTERNAL_SUBJECT_ID, TEST_EMAIL_HASH);
         assertThrows(EmailAlreadyInUseException.class, () -> userService.createUser(duplicateUserDto));
     }
 
