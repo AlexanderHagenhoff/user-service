@@ -20,14 +20,18 @@ public class ClientConfigurationProperties {
     public Properties loadClients() throws IOException {
         Properties properties = new Properties();
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propertiesPath)) {
-            if (inputStream == null) {
-                throw new FileNotFoundException(
-                        "OAuth2 client configuration not found. Please create %s".formatted(propertiesPath)
-                );
-            }
+            raiseExceptionOnMissingFile(inputStream);
             properties.load(inputStream);
         }
 
         return properties;
+    }
+
+    private void raiseExceptionOnMissingFile(InputStream inputStream) throws FileNotFoundException {
+        if (inputStream == null) {
+            throw new FileNotFoundException(
+                    "OAuth2 client configuration not found. Please create %s".formatted(propertiesPath)
+            );
+        }
     }
 }
