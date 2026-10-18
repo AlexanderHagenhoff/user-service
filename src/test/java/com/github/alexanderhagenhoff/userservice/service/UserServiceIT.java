@@ -1,10 +1,10 @@
 package com.github.alexanderhagenhoff.userservice.service;
 
+import com.github.alexanderhagenhoff.userservice.entity.User;
 import com.github.alexanderhagenhoff.userservice.exception.EmailHashAlreadyInUseException;
-import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
+import com.github.alexanderhagenhoff.userservice.exception.UserNotFoundException;
 import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
 import com.github.alexanderhagenhoff.userservice.service.dto.CreateUserDto;
-import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +28,6 @@ class UserServiceIT {
     private static final String TEST_EMAIL_HASH = "test_email_hash";
     private static final String TEST_EXTERNAL_SUBJECT_ID = "test_external_subject_id";
     private static final String NEW_EMAIL = "new_email@example.com";
-    private static final String NEW_FIRST_NAME = "New";
-    private static final String NEW_LAST_NAME = "User";
 
     @Autowired
     private UserService userService;
@@ -42,41 +40,42 @@ class UserServiceIT {
     @BeforeEach
     void setUp() {
         userRepository.deleteAll();
-        UserDto createdUserDto = userService.getOrCreateUser(TEST_EXTERNAL_SUBJECT_ID, TEST_EMAIL_HASH);
-        userId = createdUserDto.id();
+        User createdUser = userService.getOrCreateUser(TEST_EXTERNAL_SUBJECT_ID, TEST_EMAIL_HASH);
+        userId = createdUser.getId();
     }
 
     @Test
     void shouldRetrieveUserById() throws Exception {
-        UserDto userDto = userService.getUser(userId);
-        assertNotNull(userDto);
-        assertEquals(TEST_EMAIL_HASH, userDto.emailHash());
+        User user = userService.getUser(userId);
+        assertNotNull(user);
+        assertEquals(TEST_EMAIL_HASH, user.getEmailHash());
     }
 
     @Test
     void shouldRetrieveUserByEmail() {
-        UserDto userDto = userService.getUserByEmail(TEST_EMAIL_HASH);
-        assertNotNull(userDto);
-        assertEquals(userId, userDto.id());
+        User user = userService.getUserByEmailHash(TEST_EMAIL_HASH);
+        assertNotNull(user);
+        assertEquals(userId, user.getId());
     }
 
     @Test
     void shouldCreateUserSuccessfully() throws Exception {
-        CreateUserDto createUserDto = new CreateUserDto(TEST_EXTERNAL_SUBJECT_ID, NEW_EMAIL);
-        UserDto createdUserDto = userService.createUser(createUserDto);
+        User userToCreate = new User(NEW_EMAIL, TEST_EXTERNAL_SUBJECT_ID);
+        User createdUser = userService.createUser(userToCreate);
+        UUID userId = createdUser.getId();
 
-        assertNotNull(createdUserDto.id());
-        assertEquals(NEW_EMAIL, createdUserDto.emailHash());
+        assertNotNull(userId);
+        assertEquals(NEW_EMAIL, createdUser.getEmailHash());
 
-        UserDto userFromDb = userService.getUser(createdUserDto.id());
+        User userFromDb = userService.getUser(userId);
         assertNotNull(userFromDb);
-        assertEquals(NEW_EMAIL, userFromDb.emailHash());
+        assertEquals(NEW_EMAIL, userFromDb.getEmailHash());
     }
 
     @Test
     void shouldThrowExceptionWhenEmailExists() {
-        CreateUserDto duplicateUserDto = new CreateUserDto(TEST_EXTERNAL_SUBJECT_ID, TEST_EMAIL_HASH);
-        assertThrows(EmailHashAlreadyInUseException.class, () -> userService.createUser(duplicateUserDto));
+        User duplicateUser = new User(TEST_EMAIL_HASH, TEST_EXTERNAL_SUBJECT_ID);
+        assertThrows(EmailHashAlreadyInUseException.class, () -> userService.createUser(duplicateUser));
     }
 
     @Test
@@ -84,12 +83,12 @@ class UserServiceIT {
         userService.deleteUser(userId);
         assertFalse(userRepository.existsById(userId));
 
-        assertThrows(NotFoundException.class, () -> userService.getUser(userId));
+        assertThrows(UserNotFoundException.class, () -> userService.getUser(userId));
     }
 
     @Test
     void shouldThrowExceptionWhenUserNotFound() {
         UUID nonExistentId = UUID.randomUUID();
-        assertThrows(NotFoundException.class, () -> userService.getUser(nonExistentId));
+        assertThrows(UserNotFoundException.class, () -> userService.getUser(nonExistentId));
     }
 }

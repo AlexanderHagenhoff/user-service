@@ -89,11 +89,9 @@ class UserRepositoryIT {
 
     @Test
     void shouldUpdateUser() {
-        String expectedFirstName = "Updated";
-        String expectedSurName = "Name";
         String expectedEmail = "emailHash";
 
-        User user = userRepository.save(new User("original_mail", "original_external_subject_id"));
+        User user = userRepository.save(new User("original_mail_hash", "original_external_subject_id"));
         ZonedDateTime originalModifiedDate = user.getLastModifiedAt();
 
         user.setEmailHash(expectedEmail);

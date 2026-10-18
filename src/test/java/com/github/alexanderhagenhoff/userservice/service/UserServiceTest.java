@@ -1,7 +1,7 @@
 package com.github.alexanderhagenhoff.userservice.service;
 
 import com.github.alexanderhagenhoff.userservice.entity.User;
-import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
+import com.github.alexanderhagenhoff.userservice.exception.UserNotFoundException;
 import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
 import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
 import com.github.alexanderhagenhoff.userservice.service.mapper.UserDtoMapper;
@@ -18,6 +18,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,29 +31,22 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private UserDtoMapper userDtoMapper;
-
     @InjectMocks
     private UserService userService;
 
     private User testUser;
-    private UserDto testUserDto;
 
     @BeforeEach
     void setUp() {
         testUser = new User(TEST_EMAIL, TEST_EXTERNAL_SUBJECT_ID);
-        testUserDto = new UserDto(TEST_ID, TEST_EMAIL, ZonedDateTime.now(), ZonedDateTime.now());
     }
 
     @Test
-    void shouldRetrieveUserById() throws NotFoundException {
+    void shouldRetrieveUserById() throws UserNotFoundException {
         when(userRepository.findById(TEST_ID)).thenReturn(Optional.of(testUser));
-        when(userDtoMapper.toDto(testUser)).thenReturn(testUserDto);
 
-        UserDto foundUser = userService.getUser(TEST_ID);
+        User foundUser = userService.getUser(TEST_ID);
         assertNotNull(foundUser);
-        assertEquals(TEST_ID, foundUser.id());
-        assertEquals(TEST_EMAIL, foundUser.emailHash());
+        assertSame(testUser, foundUser);
     }
 }
