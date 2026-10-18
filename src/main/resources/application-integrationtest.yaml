@@ -11,3 +11,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+
+client:
+  config:
+    path: notsecretfortest/test-clients.properties
+

@@ -18,7 +18,7 @@ class ClientConfigurationPropertiesTest {
         Properties props = loader.loadClients();
 
         assertThat(props).isNotEmpty();
-        assertThat(props.getProperty("test-client-1")).isEqualTo("test-client-id-1");
+        assertThat(props.getProperty("test-client-1")).isEqualTo("$2a$12$NbCKtL5MYQuKAADt48/hAu9Yv4kA8YpkFMlqeXkf7m/XujEEtOwjW");
         assertThat(props.getProperty("test-client-2")).isEqualTo("test-client-id-2");
     }
 
