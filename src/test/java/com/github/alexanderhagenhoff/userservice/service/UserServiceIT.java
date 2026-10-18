@@ -1,7 +1,7 @@
 package com.github.alexanderhagenhoff.userservice.service;
 
 import com.github.alexanderhagenhoff.userservice.exception.EmailHashAlreadyInUseException;
-import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
+import com.github.alexanderhagenhoff.userservice.exception.UserNotFoundException;
 import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
 import com.github.alexanderhagenhoff.userservice.service.dto.CreateUserDto;
 import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
@@ -84,12 +84,12 @@ class UserServiceIT {
         userService.deleteUser(userId);
         assertFalse(userRepository.existsById(userId));
 
-        assertThrows(NotFoundException.class, () -> userService.getUser(userId));
+        assertThrows(UserNotFoundException.class, () -> userService.getUser(userId));
     }
 
     @Test
     void shouldThrowExceptionWhenUserNotFound() {
         UUID nonExistentId = UUID.randomUUID();
-        assertThrows(NotFoundException.class, () -> userService.getUser(nonExistentId));
+        assertThrows(UserNotFoundException.class, () -> userService.getUser(nonExistentId));
     }
 }

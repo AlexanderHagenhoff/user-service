@@ -2,7 +2,7 @@ package com.github.alexanderhagenhoff.userservice.service;
 
 import com.github.alexanderhagenhoff.userservice.entity.User;
 import com.github.alexanderhagenhoff.userservice.exception.EmailHashAlreadyInUseException;
-import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
+import com.github.alexanderhagenhoff.userservice.exception.UserNotFoundException;
 import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
 import com.github.alexanderhagenhoff.userservice.service.dto.CreateUserDto;
 import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
@@ -23,10 +23,10 @@ public class UserService {
         this.userDtoMapper = userDtoMapper;
     }
 
-    public UserDto getUser(UUID uuid) throws NotFoundException {
+    public UserDto getUser(UUID uuid) throws UserNotFoundException {
         return userRepository.findById(uuid)
                 .map(userDtoMapper::toDto)
-                .orElseThrow(() -> new NotFoundException(uuid));
+                .orElseThrow(() -> new UserNotFoundException(uuid));
     }
 
     public UserDto getUserByEmail(String emailHash) {

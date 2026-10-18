@@ -1,7 +1,7 @@
 package com.github.alexanderhagenhoff.userservice.service;
 
 import com.github.alexanderhagenhoff.userservice.entity.User;
-import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
+import com.github.alexanderhagenhoff.userservice.exception.UserNotFoundException;
 import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
 import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
 import com.github.alexanderhagenhoff.userservice.service.mapper.UserDtoMapper;
@@ -46,7 +46,7 @@ class UserServiceTest {
     }
 
     @Test
-    void shouldRetrieveUserById() throws NotFoundException {
+    void shouldRetrieveUserById() throws UserNotFoundException {
         when(userRepository.findById(TEST_ID)).thenReturn(Optional.of(testUser));
         when(userDtoMapper.toDto(testUser)).thenReturn(testUserDto);
 

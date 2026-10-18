@@ -1,6 +1,6 @@
 package com.github.alexanderhagenhoff.userservice.controller;
 
-import com.github.alexanderhagenhoff.userservice.exception.NotFoundException;
+import com.github.alexanderhagenhoff.userservice.exception.UserNotFoundException;
 import com.github.alexanderhagenhoff.userservice.service.UserService;
 import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
 import com.github.alexanderhagenhoff.userservice.service.dto.ExternalLoginDto;
@@ -43,7 +43,7 @@ public class UserController {
         try {
             UserDto userDto = userService.getUser(id);
             return ResponseEntity.ok(userDto);
-        } catch (NotFoundException e) {
+        } catch (UserNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
     }
