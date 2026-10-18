@@ -1,5 +1,6 @@
 package com.github.alexanderhagenhoff.userservice.configuration.oauth2;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.FileNotFoundException;
@@ -9,21 +10,24 @@ import java.util.Properties;
 
 @Component
 public class ClientConfigurationProperties {
-    private static final String CLIENTS_PROPERTIES_PATH = "secret/clients.properties";
-    private static final String MISSING_FILE_WARNING_MESSAGE = "OAuth2 client configuration not found. Please create %s".formatted(CLIENTS_PROPERTIES_PATH);
 
-    private static void raiseExceptionOnMissingFile(InputStream is) throws FileNotFoundException {
-        if (is == null) {
-            throw new FileNotFoundException(MISSING_FILE_WARNING_MESSAGE);
-        }
+    private final String propertiesPath;
+
+    public ClientConfigurationProperties(@Value("${client.config.path:secret/clients.properties}") String propertiesPath) {
+        this.propertiesPath = propertiesPath;
     }
 
     public Properties loadClients() throws IOException {
         Properties properties = new Properties();
-        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(CLIENTS_PROPERTIES_PATH)) {
-            raiseExceptionOnMissingFile(inputStream);
+        try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propertiesPath)) {
+            if (inputStream == null) {
+                throw new FileNotFoundException(
+                        "OAuth2 client configuration not found. Please create %s".formatted(propertiesPath)
+                );
+            }
             properties.load(inputStream);
         }
+
         return properties;
     }
 }
