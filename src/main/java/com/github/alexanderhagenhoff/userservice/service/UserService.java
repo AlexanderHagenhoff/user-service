@@ -4,9 +4,6 @@ import com.github.alexanderhagenhoff.userservice.entity.User;
 import com.github.alexanderhagenhoff.userservice.exception.EmailHashAlreadyInUseException;
 import com.github.alexanderhagenhoff.userservice.exception.UserNotFoundException;
 import com.github.alexanderhagenhoff.userservice.repository.UserRepository;
-import com.github.alexanderhagenhoff.userservice.service.dto.CreateUserDto;
-import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
-import com.github.alexanderhagenhoff.userservice.service.mapper.UserDtoMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,34 +13,31 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserDtoMapper userDtoMapper;
 
-    public UserService(UserRepository userRepository, UserDtoMapper userDtoMapper) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.userDtoMapper = userDtoMapper;
     }
 
-    public UserDto getUser(UUID uuid) throws UserNotFoundException {
+    public User getUser(UUID uuid) throws UserNotFoundException {
         return userRepository.findById(uuid)
-                .map(userDtoMapper::toDto)
                 .orElseThrow(() -> new UserNotFoundException(uuid));
     }
 
-    public UserDto getUserByEmail(String emailHash) {
+    public User getUserByEmailHash(String emailHash) {
         User user = userRepository.findByEmailHash(emailHash);
 
-        return userDtoMapper.toDto(user);
+        return user;
     }
 
     @Transactional
-    public UserDto createUser(CreateUserDto createUserDto) {
-        if (userRepository.existsByEmailHash(createUserDto.emailHash())) {
-            throw new EmailHashAlreadyInUseException(createUserDto.emailHash());
+    public User createUser(User userToCreate) {
+        String emailHash = userToCreate.getEmailHash();
+        if (userRepository.existsByEmailHash(emailHash)) {
+            throw new EmailHashAlreadyInUseException(emailHash);
         }
-        User user = userDtoMapper.toEntity(createUserDto);
-        User createdUser = userRepository.save(user);
+        User createdUser = userRepository.save(userToCreate);
 
-        return userDtoMapper.toDto(createdUser);
+        return createdUser;
     }
 
     public void deleteUser(UUID uuid) {
@@ -51,12 +45,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto getOrCreateUser(String externalSubjectId, String emailHash) {
+    public User getOrCreateUser(String externalSubjectId, String emailHash) {
         User userEntity = userRepository.findByExternalSubjectId(externalSubjectId)
                 .map(existingUser -> throwExceptionOnEmailHashAlreadyInUse(existingUser, emailHash))
                 .orElseGet(() -> createNewUser(externalSubjectId, emailHash));
 
-        return userDtoMapper.toDto(userEntity);
+        return userEntity;
     }
 
     private User throwExceptionOnEmailHashAlreadyInUse(User user, String emailHash) {

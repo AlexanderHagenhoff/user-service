@@ -1,9 +1,11 @@
 package com.github.alexanderhagenhoff.userservice.controller;
 
+import com.github.alexanderhagenhoff.userservice.entity.User;
 import com.github.alexanderhagenhoff.userservice.exception.UserNotFoundException;
 import com.github.alexanderhagenhoff.userservice.service.UserService;
 import com.github.alexanderhagenhoff.userservice.service.dto.UserDto;
 import com.github.alexanderhagenhoff.userservice.service.dto.ExternalLoginDto;
+import com.github.alexanderhagenhoff.userservice.service.mapper.UserDtoMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,9 +29,13 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService userService;
+    private final UserDtoMapper userDtoMapper;
 
-    public UserController(UserService userService) {
+    public UserController(
+            UserService userService,
+            UserDtoMapper userDtoMapper) {
         this.userService = userService;
+        this.userDtoMapper = userDtoMapper;
     }
 
     @Operation(
@@ -42,7 +48,8 @@ public class UserController {
     })
     @PutMapping("")
     public ResponseEntity<UserDto> getOrCreateUser(@Valid @RequestBody ExternalLoginDto request) {
-        UserDto userDto = userService.getOrCreateUser(request.externalSubjectId(), request.emailHash());
+        User user = userService.getOrCreateUser(request.externalSubjectId(), request.emailHash());
+        UserDto userDto = userDtoMapper.toDto(user);
 
         return ResponseEntity.ok(userDto);
     }
@@ -56,7 +63,8 @@ public class UserController {
     public ResponseEntity<UserDto> getUser(
             @Parameter(description = "UUID of the user to retrieve") @PathVariable("id") UUID id) {
         try {
-            UserDto userDto = userService.getUser(id);
+            User user = userService.getUser(id);
+            UserDto userDto = userDtoMapper.toDto(user);
             return ResponseEntity.ok(userDto);
         } catch (UserNotFoundException e) {
             return ResponseEntity.notFound().build();
