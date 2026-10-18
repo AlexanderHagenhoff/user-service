@@ -32,6 +32,21 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Operation(
+            summary = "Upsert user",
+            description = "Finds an existing user by external subject ID or creates a new one."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User existed and was retrieved"),
+            @ApiResponse(responseCode = "201", description = "User was created")
+    })
+    @PutMapping("")
+    public ResponseEntity<UserDto> getOrCreateUser(@Valid @RequestBody ExternalLoginDto request) {
+        UserDto userDto = userService.getOrCreateUser(request.externalSubjectId(), request.emailHash());
+
+        return ResponseEntity.ok(userDto);
+    }
+
     @Operation(summary = "Retrieve a user by ID", description = "Fetches a user from the system using their unique UUID.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "User found"),
@@ -46,21 +61,6 @@ public class UserController {
         } catch (UserNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    @Operation(
-            summary = "Upsert user",
-            description = "Finds an existing user by external subject ID or creates a new one."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User existed and was retrieved"),
-            @ApiResponse(responseCode = "201", description = "User was created")
-    })
-    @PutMapping("")
-    public ResponseEntity<UserDto> getOrCreateUser(@Valid @RequestBody ExternalLoginDto request) {
-        UserDto userDto = userService.getOrCreateUser(request.externalSubjectId(), request.emailHash());
-
-        return ResponseEntity.ok(userDto);
     }
 
     @Operation(summary = "Delete a user", description = "Removes a user from the system by their UUID.")
