@@ -1,25 +1,34 @@
 package com.github.alexanderhagenhoff.userservice.configuration.oauth2;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Properties;
+import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ClientConfigurationPropertiesTest {
 
     @Test
     void shouldLoadPropertiesWhenFileExists() throws IOException {
-        var loader = new ClientConfigurationProperties("notsecretfortest/test-clients.properties");
+        var loader = new ClientConfigurationProperties("notsecretfortest/test-clients.yaml");
 
-        Properties props = loader.loadClients();
+        Map<String, ClientDefinition> clientDefinitions = loader.loadClients();
 
-        assertThat(props).isNotEmpty();
-        assertThat(props.getProperty("test-client-1")).isEqualTo("$2a$12$NbCKtL5MYQuKAADt48/hAu9Yv4kA8YpkFMlqeXkf7m/XujEEtOwjW");
-        assertThat(props.getProperty("test-client-2")).isEqualTo("test-client-id-2");
+        ClientDefinition clientDefinition1 = clientDefinitions.get("test-client-1");
+        Assertions.assertNotNull(clientDefinition1);
+
+        ClientDefinition clientDefinition2 = clientDefinitions.get("test-client-2");
+        Assertions.assertNotNull(clientDefinition1);
+
+        Assertions.assertEquals("$2a$12$NbCKtL5MYQuKAADt48/hAu9Yv4kA8YpkFMlqeXkf7m/XujEEtOwjW", clientDefinition1.secret());
+        Assertions.assertEquals(asList("api:read", "api:write"), clientDefinition1.scopes());
+
+        Assertions.assertEquals("test_secret", clientDefinition2.secret());
+        Assertions.assertEquals(asList("api:read"), clientDefinition2.scopes());
     }
 
     @Test

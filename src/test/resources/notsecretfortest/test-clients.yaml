@@ -1,0 +1,10 @@
+clients:
+  test-client-1:
+    secret: "$2a$12$NbCKtL5MYQuKAADt48/hAu9Yv4kA8YpkFMlqeXkf7m/XujEEtOwjW"
+    scopes:
+      - "api:read"
+      - "api:write"
+  test-client-2:
+    secret: "test_secret"
+    scopes:
+      - "api:read"
