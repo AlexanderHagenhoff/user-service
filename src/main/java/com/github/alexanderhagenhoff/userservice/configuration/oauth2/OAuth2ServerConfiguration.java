@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 
 import java.io.IOException;
-import java.util.Properties;
+import java.util.Map;
 
 @Configuration
 public class OAuth2ServerConfiguration {
@@ -19,8 +19,9 @@ public class OAuth2ServerConfiguration {
             RegisteredClientProvider clientProvider,
             PasswordEncoder encoder
     ) throws IOException {
-        Properties properties = clientConfig.loadClients();
-        return new InMemoryRegisteredClientRepository(clientProvider.createClients(properties, encoder));
+        Map<String, ClientDefinition> clients = clientConfig.loadClients();
+
+        return new InMemoryRegisteredClientRepository(clientProvider.createClients(clients, encoder));
     }
 
     @Bean
